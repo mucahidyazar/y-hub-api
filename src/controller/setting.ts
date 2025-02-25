@@ -59,8 +59,8 @@ async function settingBackup(req: Request, res: Response) {
     Setting.findOne({ createdBy: userId }).lean(),
     Transaction.find({ createdBy: userId })
       .populate('wallet')
-      .populate('transactionCategory')
-      .populate('transactionBrand')
+      .populate('category')
+      .populate('brand')
       .lean(),
     User.findById(userId).lean(),
     Wallet.find({ createdBy: userId }).populate('walletType').lean(),
@@ -122,49 +122,49 @@ async function settingRestore(req: Request, res: Response) {
   await Promise.all(
     [
       backupData.calculations?.length > 0 &&
-        Calculation.insertMany(
-          backupData.calculations.map((item: any) => ({
-            ...item,
-            createdBy: userId,
-          })),
-        ),
+      Calculation.insertMany(
+        backupData.calculations.map((item: any) => ({
+          ...item,
+          createdBy: userId,
+        })),
+      ),
       backupData.settings &&
-        Setting.create({ ...backupData.settings, createdBy: userId }),
+      Setting.create({ ...backupData.settings, createdBy: userId }),
       backupData.transactions?.length > 0 &&
-        Transaction.insertMany(
-          backupData.transactions.map((item: any) => ({
-            ...item,
-            createdBy: userId,
-          })),
-        ),
+      Transaction.insertMany(
+        backupData.transactions.map((item: any) => ({
+          ...item,
+          createdBy: userId,
+        })),
+      ),
       backupData.wallets?.length > 0 &&
-        Wallet.insertMany(
-          backupData.wallets.map((item: any) => ({
-            ...item,
-            createdBy: userId,
-          })),
-        ),
+      Wallet.insertMany(
+        backupData.wallets.map((item: any) => ({
+          ...item,
+          createdBy: userId,
+        })),
+      ),
       backupData.walletAccessors?.length > 0 &&
-        WalletAccessor.insertMany(
-          backupData.walletAccessors.map((item: any) => ({
-            ...item,
-            createdBy: userId,
-          })),
-        ),
+      WalletAccessor.insertMany(
+        backupData.walletAccessors.map((item: any) => ({
+          ...item,
+          createdBy: userId,
+        })),
+      ),
       backupData.wishlists?.length > 0 &&
-        Wishlist.insertMany(
-          backupData.wishlists.map((item: any) => ({
-            ...item,
-            createdBy: userId,
-          })),
-        ),
+      Wishlist.insertMany(
+        backupData.wishlists.map((item: any) => ({
+          ...item,
+          createdBy: userId,
+        })),
+      ),
       backupData.wishlistAccessors?.length > 0 &&
-        WishlistAccessor.insertMany(
-          backupData.wishlistAccessors.map((item: any) => ({
-            ...item,
-            createdBy: userId,
-          })),
-        ),
+      WishlistAccessor.insertMany(
+        backupData.wishlistAccessors.map((item: any) => ({
+          ...item,
+          createdBy: userId,
+        })),
+      ),
     ].filter(Boolean),
   ) // undefined olanları filtrele
 

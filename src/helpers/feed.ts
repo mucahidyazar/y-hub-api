@@ -132,12 +132,12 @@ async function getTransactions({ createdBy, wallet, walletBalance }) {
 
   const transactions = transactionCategories.map((t, index) => ({
     type: 'expense',
-    date: generateRandomDate({ minYear: 2015, maxYear: 2023 }),
+    dueDate: generateRandomDate({ minYear: 2015, maxYear: 2023 }),
     createdBy,
     wallet,
     walletBalance,
     // eslint-disable-next-line security/detect-object-injection
-    transactionCategory: transactionCategories[index].id,
+    category: transactionCategories[index].id,
     amount: getRandomNumber({ min: 10, max: 50 }),
     transactionCurrency: 'USD',
   }))
@@ -193,7 +193,7 @@ async function feed() {
   //   wallet: meWallet.id,
   //   walletBalance: meWalletBalance.id,
   //   // eslint-disable-next-line security/detect-object-injection
-  //   transactionCategory: allTransactionCategories[i].id,
+  //   category: allTransactionCategories[i].id,
   //   amount: getRandomNumber({ min: 10, max: 50 }),
   //   transactionCurrency: 'USD',
   //   subscriptionType: r,

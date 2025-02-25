@@ -1,7 +1,7 @@
+import mongoose from 'mongoose'
 import { z } from 'zod'
 
 import { ERROR_MESSAGE, VALIDATION_RULES } from '@/constants'
-import { createObjectIdSchema } from '@/validation/general'
 
 // Önce wishlist item için bir sub-schema oluşturalım
 const wishlistItemSchema = z.object({
@@ -38,7 +38,9 @@ const wishlistItemSchema = z.object({
     .url(ERROR_MESSAGE.invalid('Image URL'))
     .optional(),
 
-  reservedBy: createObjectIdSchema('User').optional().nullable(),
+  reservedBy: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId format',
+  }).optional().nullable(),
   reservedAt: z.date().optional().nullable(),
 
   action: z.enum(['initial', 'updated', 'deleted']).optional(),

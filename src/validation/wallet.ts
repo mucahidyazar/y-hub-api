@@ -1,7 +1,7 @@
+import mongoose from 'mongoose'
 import { z } from 'zod'
 
 import { ERROR_MESSAGE, VALIDATION_RULES } from '@/constants'
-import { createObjectIdSchema } from '@/validation/general'
 
 const walletBalanceCreateSchema = z.object({
   amount: z.number().default(0),
@@ -60,7 +60,9 @@ export const walletSchema = z.object({
 
   walletBalances: z.array(walletBalanceCreateSchema).default([]),
 
-  walletType: createObjectIdSchema('WalletType'),
+  walletType: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId format',
+  }),
 
   accessors: z.array(walletAccessorCreateSchema).optional().default([]),
 })

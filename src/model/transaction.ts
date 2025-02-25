@@ -164,7 +164,7 @@ transactionSchema.statics.getMonthlyStats = async function (
     {
       $match: {
         createdBy: new mongoose.Types.ObjectId(userId),
-        date: { $gte: startDate, $lte: endDate },
+        dueDate: { $gte: startDate, $lte: endDate },
       },
     },
     {

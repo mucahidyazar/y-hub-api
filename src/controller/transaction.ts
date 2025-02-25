@@ -36,11 +36,11 @@ async function transactionCreate(req: Request, res: Response) {
   }
 
   await TransactionBrand.findOneAndUpdate(
-    { _id: req.body.transactionBrand },
+    { _id: req.body.brandId },
     { $inc: { usageCount: 1 } },
   )
   await TransactionCategory.findOneAndUpdate(
-    { _id: req.body.transactionCategory },
+    { _id: req.body.categoryId },
     { $inc: { usageCount: 1 } },
   )
 
@@ -59,7 +59,7 @@ async function transactionCreate(req: Request, res: Response) {
     monthly: { months: 1 },
     yearly: { years: 1 },
   }
-  let transactionDate = new Date(req.body.date ?? '')
+  let transactionDate = new Date(req.body.dueDate ?? '')
   for (
     let subscriptionRecurrence = 1;
     subscriptionRecurrence <= req.body.subscriptionRecurrence;
@@ -73,6 +73,8 @@ async function transactionCreate(req: Request, res: Response) {
     }
     const newTransaction = new Transaction({
       ...req.body,
+      category: req.body.categoryId,
+      brand: req.body.brandId,
       ...subscriptionIdData,
       dueDate: transactionDate,
       createdBy: req.user?.id,
@@ -176,10 +178,10 @@ async function subscriptionList(req: Request, res: Response) {
 
     // Ana sorguyu oluştur
     const query = Transaction.find(queryConditions)
-      .sort({ date: -1 })
+      .sort({ dueDate: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate(['wallet', 'transactionCategory', 'transactionBrand'])
+      .populate(['wallet', 'brand', 'category'])
 
     const subscriptions = await query.lean().exec()
 
@@ -242,10 +244,10 @@ async function transactionChartGet(req: Request, res: Response) {
   })
 
   const populateFields = [
-    'user',
+    'createdBy',
     'walletBalance',
-    'transactionBrand',
-    'transactionCategory',
+    'brand',
+    'category',
   ]
   populateFields.forEach(field => {
     query.populate(field)
@@ -297,10 +299,10 @@ async function transactionStatsGet(req: Request, res: Response) {
   })
 
   const populateFields = [
-    'user',
+    'createdBy',
     'walletBalance',
-    'transactionBrand',
-    'transactionCategory',
+    'brand',
+    'category',
   ]
   populateFields.forEach(field => {
     query.populate(field)

@@ -1,7 +1,7 @@
+import mongoose from 'mongoose'
 import { z } from 'zod'
 
 import { ERROR_MESSAGE, VALIDATION_RULES } from '@/constants'
-import { createObjectIdSchema } from '@/validation/general'
 
 const transactionBrandSchema = z.object({
   name: z
@@ -48,7 +48,7 @@ const transactionSchema = z.object({
   subscriptionRecurrence: z.number().min(1).default(1),
   subscription: z.boolean().default(false),
   subscriptionType: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
-  date: z.string().or(z.date()),
+  dueDate: z.string().or(z.date()),
   amount: z.number().positive({
     message: 'Amount must be a positive number.',
   }),
@@ -56,10 +56,18 @@ const transactionSchema = z.object({
     .string({ message: 'Please select a currency.' })
     .min(1, { message: 'Please select a currency' }),
 
-  wallet: createObjectIdSchema('Wallet'),
-  walletBalance: createObjectIdSchema('WalletBalance'),
-  transactionCategory: createObjectIdSchema('TransactionCategory').optional(),
-  transactionBrand: createObjectIdSchema('TransactionBrand').optional(),
+  wallet: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId format',
+  }),
+  walletBalance: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId format',
+  }),
+  categoryId: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId format',
+  }).optional(),
+  brandId: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
+    message: 'Invalid ObjectId format',
+  }).optional(),
 })
 
 const transactionUpdateSchema = transactionSchema.partial()
