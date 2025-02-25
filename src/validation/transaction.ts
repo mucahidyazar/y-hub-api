@@ -28,7 +28,7 @@ const transactionCategorySchema = z.object({
 const transactionCategoryUpdateSchema = transactionCategorySchema.partial()
 
 const transactionSchema = z.object({
-  type: z.enum(['income', 'expense']),
+  direction: z.enum(['income', 'expense']),
   description: z
     .string({ message: ERROR_MESSAGE.string('Description') })
     .min(VALIDATION_RULES.input.min, ERROR_MESSAGE.stringMin('Description'))
@@ -49,7 +49,7 @@ const transactionSchema = z.object({
   subscription: z.boolean().default(false),
   subscriptionType: z.enum(['daily', 'weekly', 'monthly', 'yearly']).optional(),
   date: z.string().or(z.date()),
-  transactionAmount: z.number().positive({
+  amount: z.number().positive({
     message: 'Amount must be a positive number.',
   }),
   transactionCurrency: z

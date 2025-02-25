@@ -44,7 +44,6 @@ const baseTransactionSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     describe: 'Category of the financial movement',
     ref: 'TransactionCategory',
-    required: true,
   },
   brand: {
     type: mongoose.Schema.Types.ObjectId,
@@ -57,14 +56,6 @@ const baseTransactionSchema = new mongoose.Schema({
     describe: 'Wallet of the financial movement',
     ref: 'Wallet',
     required: true,
-    validate: {
-      validator: async function (this: IBaseTransaction, walletId: string) {
-        const walletBalance = await mongoose
-          .model('WalletBalance')
-          .findById(this.walletBalance)
-        return walletBalance?.wallet.toString() === walletId
-      },
-    },
   },
   walletBalance: {
     type: mongoose.Schema.Types.ObjectId,

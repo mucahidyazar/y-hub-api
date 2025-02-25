@@ -16,7 +16,7 @@ import { WalletBalance } from '@/model/wallet-balance'
 import { ApiResponse } from '@/utils'
 
 async function transactionCreate(req: Request, res: Response) {
-  const isIncome = req.body.type === 'income'
+  const isIncome = req.body.direction === 'income'
 
   const walletBalance = await WalletBalance.findOne({
     _id: req.body.walletBalance,
@@ -26,9 +26,9 @@ async function transactionCreate(req: Request, res: Response) {
     throw new ApiError('No enough wallet balance', ERROR_CODE.ValidationError)
   }
 
-  const transactionAmount = req.body.transactionAmount
+  const amount = req.body.amount
 
-  if (!isIncome && walletBalance.amount < transactionAmount) {
+  if (!isIncome && walletBalance.amount < amount) {
     throw new ApiError(
       'Transaction amount exceeds wallet balance',
       ERROR_CODE.ValidationError,
@@ -38,17 +38,15 @@ async function transactionCreate(req: Request, res: Response) {
   await TransactionBrand.findOneAndUpdate(
     { _id: req.body.transactionBrand },
     { $inc: { usageCount: 1 } },
-    { new: true },
   )
   await TransactionCategory.findOneAndUpdate(
     { _id: req.body.transactionCategory },
     { $inc: { usageCount: 1 } },
-    { new: true },
   )
 
   walletBalance.amount = isIncome
-    ? walletBalance.amount + transactionAmount
-    : walletBalance.amount - transactionAmount
+    ? walletBalance.amount + amount
+    : walletBalance.amount - amount
   await walletBalance.save()
 
   const isSubscription = req.body.type === 'subscription'
@@ -76,7 +74,7 @@ async function transactionCreate(req: Request, res: Response) {
     const newTransaction = new Transaction({
       ...req.body,
       ...subscriptionIdData,
-      date: transactionDate,
+      dueDate: transactionDate,
       createdBy: req.user?.id,
     })
     await newTransaction.save()
@@ -426,10 +424,10 @@ async function transactionUpdate(req: Request, res: Response) {
     throw new ApiError('No enough wallet balance', ERROR_CODE.ValidationError)
   }
 
-  const isUpdateIncome = req.body.type === 'income'
-  const transactionAmount = req.body.transactionAmount
+  const isUpdateIncome = req.body.direction === 'income'
+  const amount = req.body.amount
 
-  if (!isUpdateIncome && walletBalance.amount < transactionAmount) {
+  if (!isUpdateIncome && walletBalance.amount < amount) {
     throw new ApiError(
       'Transaction amount exceeds wallet balance',
       ERROR_CODE.ValidationError,
@@ -450,34 +448,34 @@ async function transactionUpdate(req: Request, res: Response) {
   }
 
   const isTransactionIncome = transactionData?.direction === 'income'
-  if (transactionAmount) {
+  if (amount) {
     if (isTransactionIncome) {
       if (isUpdateIncome) {
         walletBalance.amount =
           walletBalance.amount -
-          (transactionAmount ?? 0) +
+          (amount ?? 0) +
           transactionData.amount
       } else {
         walletBalance.amount =
           walletBalance.amount -
-          (transactionAmount ?? 0) -
+          (amount ?? 0) -
           transactionData.amount
       }
     } else {
       if (isUpdateIncome) {
         walletBalance.amount =
           walletBalance.amount +
-          (transactionAmount ?? 0) +
+          (amount ?? 0) +
           transactionData.amount
       } else {
         walletBalance.amount =
           walletBalance.amount +
-          (transactionAmount ?? 0) -
+          (amount ?? 0) -
           transactionData.amount
       }
     }
 
-    transactionData.amount = transactionAmount
+    transactionData.amount = amount
     await transactionData?.save()
   }
   await walletBalance.save()

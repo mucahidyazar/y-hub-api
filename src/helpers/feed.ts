@@ -138,7 +138,7 @@ async function getTransactions({ createdBy, wallet, walletBalance }) {
     walletBalance,
     // eslint-disable-next-line security/detect-object-injection
     transactionCategory: transactionCategories[index].id,
-    transactionAmount: getRandomNumber({ min: 10, max: 50 }),
+    amount: getRandomNumber({ min: 10, max: 50 }),
     transactionCurrency: 'USD',
   }))
 
@@ -194,7 +194,7 @@ async function feed() {
   //   walletBalance: meWalletBalance.id,
   //   // eslint-disable-next-line security/detect-object-injection
   //   transactionCategory: allTransactionCategories[i].id,
-  //   transactionAmount: getRandomNumber({ min: 10, max: 50 }),
+  //   amount: getRandomNumber({ min: 10, max: 50 }),
   //   transactionCurrency: 'USD',
   //   subscriptionType: r,
   //   subscription: true,
