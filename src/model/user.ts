@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import z from 'zod'
 
 import { DEFAULTS, VALIDATION_RULES } from '@/constants'
+import { IRole } from '@/model/role'
 import { Setting } from '@/model/setting'
 import { passwordSchema } from '@/validation'
 
@@ -12,12 +13,15 @@ interface IUser extends mongoose.Document {
   email: string
   password: string
   passwordChangedAt?: Date
-  role: string
   status: string
   avatarUrl?: string
   comparePassword(candidatePassword: string): Promise<boolean>
   defaultWallet?: string
   defaultWalletCurrency?: string
+
+  roles: mongoose.Types.ObjectId[] | IRole[]
+  hasRole(roleName: string): boolean
+  hasPermission(permissionName: string): Promise<boolean>
 }
 
 const userSchema: mongoose.Schema<IUser> = new mongoose.Schema<IUser>(
@@ -61,11 +65,13 @@ const userSchema: mongoose.Schema<IUser> = new mongoose.Schema<IUser>(
       default: 'active',
       required: true,
     },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
+    roles: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role',
+        default: [],
+      },
+    ],
     avatarUrl: {
       type: String,
       default: DEFAULTS.avatarUrl,
@@ -120,6 +126,34 @@ userSchema.pre('save', async function (next) {
 // Parola karşılaştırma
 userSchema.methods.comparePassword = function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password)
+}
+
+// Method to check if a user has a specific role
+userSchema.methods.hasRole = async function (
+  roleName: string,
+): Promise<boolean> {
+  const isRoleExists = await mongoose.model('Role').exists({
+    _id: { $in: this.roles },
+    status: 'active',
+    name: roleName,
+  })
+
+  return !!isRoleExists
+}
+
+// Method to check if a user has a specific permission
+userSchema.methods.hasPermission = async function (
+  permissionName: string,
+): Promise<boolean> {
+  const isPermissionExists = await mongoose.model('Role').exists({
+    _id: { $in: this.roles },
+    status: 'active',
+    permissions: {
+      $elemMatch: { name: permissionName, status: 'active' },
+    },
+  })
+
+  return !!isPermissionExists
 }
 
 const User = mongoose.model<IUser>('User', userSchema)
