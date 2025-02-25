@@ -12,7 +12,7 @@ interface ISubscription extends IBaseTransaction {
   startDate: Date
   endDate: Date
 
-  transactions: mongoose.Types.ObjectId[] | ITransaction['_id'][]
+  transactions: mongoose.Types.ObjectId[] | ITransaction[]
 
   nextPaymentDate: Date
   getNextPaymentDate(): Promise<Date>

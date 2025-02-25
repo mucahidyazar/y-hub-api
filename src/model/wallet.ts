@@ -13,10 +13,10 @@ interface IWallet extends IBaseModel {
   design: string
   platform: string
 
-  walletType: mongoose.Types.ObjectId | IWalletType['_id']
+  walletType: mongoose.Types.ObjectId | IWalletType
 
-  walletBalances: mongoose.Types.ObjectId[] | IWalletBalance['_id'][]
-  accessors: mongoose.Types.ObjectId[] | IWalletAccessor['_id'][]
+  walletBalances: mongoose.Types.ObjectId[] | IWalletBalance[]
+  accessors: mongoose.Types.ObjectId[] | IWalletAccessor[]
 
   getTotalBalance(): Promise<number>
 

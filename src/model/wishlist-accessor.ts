@@ -6,8 +6,8 @@ import { IWishlist } from './wishlist'
 
 interface IWishlistAccessor extends IBaseModel {
   wishlistAccessorStatus: 'active' | 'pending'
-  accessor: mongoose.Types.ObjectId | IUser['_id']
-  wishlist: mongoose.Types.ObjectId | IWishlist['_id']
+  accessor: mongoose.Types.ObjectId | IUser
+  wishlist: mongoose.Types.ObjectId | IWishlist
 }
 
 const wishlistAccessorSchema = new mongoose.Schema({

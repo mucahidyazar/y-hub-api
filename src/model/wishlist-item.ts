@@ -13,10 +13,10 @@ interface IWishlistItem extends IBaseModel {
   price: number
   image: string
 
-  reservedBy: mongoose.Types.ObjectId | IUser['_id']
+  reservedBy: mongoose.Types.ObjectId | IUser
   reservedAt: Date
 
-  wishlist: mongoose.Types.ObjectId | IWishlist['_id']
+  wishlist: mongoose.Types.ObjectId | IWishlist
 }
 
 const WishlistItemSchema = new mongoose.Schema({

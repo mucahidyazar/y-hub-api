@@ -4,7 +4,7 @@ import { IBaseModel, baseSchema } from './base.model'
 import { IUser } from './user'
 
 interface IAccessor extends IBaseModel {
-  accessor: mongoose.Types.ObjectId | IUser['_id']
+  accessor: mongoose.Types.ObjectId | IUser
   modelId: mongoose.Types.ObjectId
 }
 

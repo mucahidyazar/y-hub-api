@@ -8,11 +8,7 @@ import { baseTransactionSchema, IBaseTransaction } from './transaction-base'
 
 interface ITransaction extends IBaseTransaction {
   type: 'single' | 'installment' | 'subscription'
-  parent:
-    | mongoose.Schema.Types.ObjectId
-    | IInstallment['_id']
-    | ISubscription['_id']
-    | null
+  parent: mongoose.Schema.Types.ObjectId | IInstallment | ISubscription | null
   transactionStatus: 'pending' | 'paid' | 'overdue' | 'canceled'
   link: string
   dueDate: Date
