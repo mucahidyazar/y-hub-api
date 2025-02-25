@@ -51,7 +51,8 @@ async function transactionCreate(req: Request, res: Response) {
     : walletBalance.amount - transactionAmount
   await walletBalance.save()
 
-  const subscriptionIdData = req.body.isSubscription
+  const isSubscription = req.body.type === 'subscription'
+  const subscriptionIdData = isSubscription
     ? { subscriptionId: new mongoose.Types.ObjectId().toHexString() }
     : {}
   const addingMap = {
@@ -153,15 +154,15 @@ async function subscriptionList(req: Request, res: Response) {
         { user: user },
         ...(walletObjectId || walletIds.length > 0
           ? [
-              {
-                wallet: {
-                  $in: [
-                    ...walletIds,
-                    ...(walletObjectId ? [walletObjectId] : []),
-                  ],
-                },
+            {
+              wallet: {
+                $in: [
+                  ...walletIds,
+                  ...(walletObjectId ? [walletObjectId] : []),
+                ],
               },
-            ]
+            },
+          ]
           : []),
       ],
       // Sadece parent subscription'ları al (kendisi bir subscription ama başka bir subscription'a bağlı değil)
