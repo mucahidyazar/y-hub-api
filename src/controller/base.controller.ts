@@ -1,13 +1,14 @@
+import 'zod-openapi/extend'
 import { ZodOpenApiPathsObject } from 'zod-openapi'
 
 import { OPENAPI_METADATA_KEY } from '@/constants'
-
 type OpenApiMethodMetadata = {
   method: string
   path: string
   operation?: OpenApiOperation
   requestBody?: any
   responses: Record<number, any>
+  parameters: any
 }
 
 type OpenApiOperation = {
@@ -34,6 +35,7 @@ class BaseController {
           ...metadata.operation,
           requestBody: metadata.requestBody,
           responses: metadata.responses,
+          parameters: metadata.parameters,
         }
       }
     }

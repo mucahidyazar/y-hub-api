@@ -1,6 +1,7 @@
 import { Query } from 'mongoose'
+import { z } from 'zod'
 
-import { TPaginationRequestParameters } from '@/model/request/common.dto'
+import { PaginationRequestParameters } from '@/requestModel'
 
 type PaginationMetadata = {
   page: number
@@ -19,40 +20,15 @@ type QueryHelperResult = {
 }
 
 type QueryHelperArgs = {
-  queryStrings: TPaginationRequestParameters
+  queryStrings: z.infer<typeof PaginationRequestParameters>
   query: Query<any, any>
 }
 
-type TGetPaginationMetadataArgs = {
-  limit: number
-  page: number
-  totalItems: number
-}
-
-async function handlePagination(
-  query: Query<any, any>,
-  options: TPaginationRequestParameters,
-): Promise<PaginationMetadata | undefined> {
-  const page = options.page
-  const limit = options.limit
-  const skip = (page - 1) * limit
-
-  const totalItems = await query.clone().countDocuments()
-
-  query.skip(skip).limit(limit)
-
-  return getPaginationMetadata({
-    limit,
-    page,
-    totalItems,
-  })
-}
-
-export function getPaginationMetadata({
-  limit,
-  page,
-  totalItems,
-}: TGetPaginationMetadataArgs): PaginationMetadata {
+export function getPaginationMetadata(
+  limit: number,
+  page: number,
+  totalItems: number,
+): PaginationMetadata {
   const totalPages = Math.ceil(totalItems / limit)
 
   return {
@@ -66,6 +42,19 @@ export function getPaginationMetadata({
     nextPage: page < totalPages ? page + 1 : null,
     prevPage: page > 1 ? page - 1 : null,
   }
+}
+
+async function handlePagination(
+  query: Query<any, any>,
+  options: z.infer<typeof PaginationRequestParameters>,
+): Promise<PaginationMetadata | undefined> {
+  const page = options.page
+  const limit = options.limit
+  const skip = (page - 1) * limit
+
+  query.skip(skip).limit(limit)
+
+  return getPaginationMetadata(limit, page, await query.countDocuments())
 }
 
 async function queryHelper({

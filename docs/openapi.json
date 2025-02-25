@@ -787,16 +787,94 @@
         "tags": [
           "Wallet"
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of items per page",
+            "required": false,
+            "schema": {
+              "_def": {
+                "innerType": {
+                  "_def": {
+                    "innerType": {
+                      "_def": {
+                        "checks": [],
+                        "typeName": "ZodNumber",
+                        "coerce": false
+                      },
+                      "~standard": {
+                        "version": 1,
+                        "vendor": "zod"
+                      }
+                    },
+                    "typeName": "ZodOptional"
+                  },
+                  "~standard": {
+                    "version": 1,
+                    "vendor": "zod"
+                  }
+                },
+                "typeName": "ZodDefault",
+                "zodOpenApi": {
+                  "openapi": {
+                    "description": "The number of items per page",
+                    "example": 12,
+                    "default": 12
+                  }
+                }
+              },
+              "~standard": {
+                "version": 1,
+                "vendor": "zod"
               }
-            }
+            },
+            "example": 12
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number",
+            "required": false,
+            "schema": {
+              "_def": {
+                "innerType": {
+                  "_def": {
+                    "innerType": {
+                      "_def": {
+                        "checks": [],
+                        "typeName": "ZodNumber",
+                        "coerce": false
+                      },
+                      "~standard": {
+                        "version": 1,
+                        "vendor": "zod"
+                      }
+                    },
+                    "typeName": "ZodOptional"
+                  },
+                  "~standard": {
+                    "version": 1,
+                    "vendor": "zod"
+                  }
+                },
+                "typeName": "ZodDefault",
+                "zodOpenApi": {
+                  "openapi": {
+                    "description": "The page number",
+                    "example": 1,
+                    "default": 1
+                  }
+                }
+              },
+              "~standard": {
+                "version": 1,
+                "vendor": "zod"
+              }
+            },
+            "example": 1
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "Wallets listed successfully",
