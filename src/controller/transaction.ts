@@ -77,7 +77,7 @@ async function transactionCreate(req: Request, res: Response) {
       ...req.body,
       ...subscriptionIdData,
       date: transactionDate,
-      user: req.user?.id,
+      createdBy: req.user?.id,
     })
     await newTransaction.save()
   }
@@ -95,18 +95,21 @@ async function transactionList(req: Request, res: Response) {
   const user = req.user?.id
 
   let walletIds: object[] = []
-  const accessors = await WalletAccessor.find({ user: req.user?.id }).select(
-    'modelId',
-  )
+  const accessors = await WalletAccessor.find({
+    createdBy: req.user?.id,
+  }).select('modelId')
   const accessorWalletIds = accessors.map(accessor => accessor.id)
   const accessibleWallets = await Wallet.find({
-    $or: [{ user: user }, { accessors: { $in: accessorWalletIds } }],
+    $or: [{ createdBy: user }, { accessors: { $in: accessorWalletIds } }],
   }).select('_id')
 
   walletIds = accessibleWallets.map(wallet => wallet.id)
 
   const query = Transaction.find({
-    $or: [{ user: user }, { wallet: { $in: [...walletIds, walletObjectId] } }],
+    $or: [
+      { createdBy: user },
+      { wallet: { $in: [...walletIds, walletObjectId] } },
+    ],
     ...(req.query.subscription && { subscription: true }),
   })
 
@@ -138,11 +141,11 @@ async function subscriptionList(req: Request, res: Response) {
     let walletIds: object[] = []
     if (isAccessorSubscriptions !== 'false') {
       const accessors = await WalletAccessor.find({
-        user: req.user?.id,
+        createdBy: req.user?.id,
       }).select('modelId')
       const accessorWalletIds = accessors.map(accessor => accessor.id)
       const accessibleWallets = await Wallet.find({
-        $or: [{ user: user }, { accessors: { $in: accessorWalletIds } }],
+        $or: [{ createdBy: user }, { accessors: { $in: accessorWalletIds } }],
       }).select('_id')
 
       walletIds = accessibleWallets.map(wallet => wallet.id)
@@ -151,7 +154,7 @@ async function subscriptionList(req: Request, res: Response) {
     // Ana sorgu koşulları
     const queryConditions = {
       $or: [
-        { user: user },
+        { createdBy: user },
         ...(walletObjectId || walletIds.length > 0
           ? [
             {
@@ -237,7 +240,7 @@ async function subscriptionList(req: Request, res: Response) {
 
 async function transactionChartGet(req: Request, res: Response) {
   const query = Transaction.find({
-    user: req.user?.id,
+    createdBy: req.user?.id,
   })
 
   const populateFields = [
@@ -284,13 +287,13 @@ async function transactionStatsGet(req: Request, res: Response) {
   const wallet = req.query.wallet
 
   const totalItems = await Transaction.countDocuments({
-    user: req.user?.id,
+    createdBy: req.user?.id,
     ...(wallet && { wallet }),
     ...(req.query.subscription && { subscription: true }),
   })
 
   const query = Transaction.find({
-    user: req.user?.id,
+    createdBy: req.user?.id,
     ...(wallet && { wallet }),
     ...(req.query.subscription && { subscription: true }),
   })
@@ -350,11 +353,13 @@ async function transactionStatsGet(req: Request, res: Response) {
 }
 
 async function transactionGet(req: Request, res: Response) {
-  const allUniqueWalletIds = await getUniqueWalletIds({ user: req.user?.id })
+  const allUniqueWalletIds = await getUniqueWalletIds({
+    createdBy: req.user?.id,
+  })
 
   const filter = {
     _id: req.params.id,
-    $or: [{ user: req.user?.id }, { wallet: { $in: allUniqueWalletIds } }],
+    $or: [{ createdBy: req.user?.id }, { wallet: { $in: allUniqueWalletIds } }],
   }
 
   const query = Transaction.findOne(filter)
@@ -431,11 +436,13 @@ async function transactionUpdate(req: Request, res: Response) {
     )
   }
 
-  const allUniqueWalletIds = await getUniqueWalletIds({ user: req.user?.id })
+  const allUniqueWalletIds = await getUniqueWalletIds({
+    createdBy: req.user?.id,
+  })
 
   const transactionData = await Transaction.findOne({
     _id: req.params.id,
-    $or: [{ user: req.user?.id }, { wallet: { $in: allUniqueWalletIds } }],
+    $or: [{ createdBy: req.user?.id }, { wallet: { $in: allUniqueWalletIds } }],
   })
 
   if (!transactionData) {
@@ -482,11 +489,13 @@ async function transactionUpdate(req: Request, res: Response) {
 }
 
 async function transactionDelete(req: Request, res: Response) {
-  const allUniqueWalletIds = await getUniqueWalletIds({ user: req.user?.id })
+  const allUniqueWalletIds = await getUniqueWalletIds({
+    createdBy: req.user?.id,
+  })
 
   const data = await Transaction.findOneAndDelete({
     _id: req.params.id,
-    $or: [{ user: req.user?.id }, { wallet: { $in: allUniqueWalletIds } }],
+    $or: [{ createdBy: req.user?.id }, { wallet: { $in: allUniqueWalletIds } }],
   })
 
   if (!data) {
@@ -511,20 +520,22 @@ export {
 }
 
 type TGetUniqueWalletIdsArgs = {
-  user: string
+  createdBy: string
 }
 
 async function getUniqueWalletIds({
-  user,
+  createdBy,
 }: TGetUniqueWalletIdsArgs): Promise<string[]> {
-  const walletsResponse = await Wallet.find({ user: user }).select('_id')
+  const walletsResponse = await Wallet.find({ createdBy: createdBy }).select(
+    '_id',
+  )
   const walletIds = walletsResponse.map(wallet => wallet._id)
 
-  const accessors = await WalletAccessor.find({ user: user })
+  const accessors = await WalletAccessor.find({ createdBy: createdBy })
   const accessorWalletIds = accessors.map(accessor => accessor.id)
   const accessibleWallets = await Wallet.find({
     $or: [
-      { user: user }, // Kullanıcı wallet'ın sahibi mi?
+      { createdBy: createdBy }, // Kullanıcı wallet'ın sahibi mi?
       { accessors: { $in: accessorWalletIds } }, // Kullanıcı accessors'da mı?
     ],
   })

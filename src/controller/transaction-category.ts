@@ -8,7 +8,7 @@ import { ApiResponse } from '@/utils'
 async function transactionCategoryCreate(req: Request, res: Response) {
   const newTransactionCategory = new TransactionCategory({
     ...req.body,
-    user: req.user?.id,
+    createdBy: req.user?.id,
   })
   const data = await newTransactionCategory.save()
 
@@ -20,7 +20,10 @@ async function transactionCategoryCreate(req: Request, res: Response) {
 
 async function transactionCategoryList(req: Request, res: Response) {
   const data = await TransactionCategory.find({
-    $or: [{ user: req.user?.id }, { user: '6714c1614412e8a0efa8f5ff' }],
+    $or: [
+      { createdBy: req.user?.id },
+      { createdBy: '6714c1614412e8a0efa8f5ff' },
+    ],
   })
 
   return res.response({
@@ -32,7 +35,7 @@ async function transactionCategoryList(req: Request, res: Response) {
 async function transactionCategoryGet(req: Request, res: Response) {
   const data = await TransactionCategory.findOne({
     _id: req.params.id,
-    $or: [{ user: req.user?.id }],
+    $or: [{ createdBy: req.user?.id }],
   })
 
   if (!data) {
@@ -60,7 +63,7 @@ async function transactionCategoryUpdate(req: Request, res: Response) {
   }
 
   const data = await TransactionCategory.findOneAndUpdate(
-    { _id: req.params.id, user: req.user?.id },
+    { _id: req.params.id, createdBy: req.user?.id },
     { $set: req.body },
     { new: true, runValidators: true },
   )
@@ -81,7 +84,7 @@ async function transactionCategoryUpdate(req: Request, res: Response) {
 async function transactionCategoryDelete(req: Request, res: Response) {
   const data = await TransactionCategory.findOneAndDelete({
     _id: req.params.id,
-    user: req.user?.id,
+    createdBy: req.user?.id,
   })
 
   if (!data) {

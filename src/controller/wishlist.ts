@@ -17,7 +17,7 @@ async function wishlistCreate(req: Request, res: Response) {
 
   const newWishlist = new Wishlist({
     ...bodyData,
-    user: req.user?.id,
+    createdBy: req.user?.id,
   })
   const data = await newWishlist.save()
 
@@ -26,7 +26,7 @@ async function wishlistCreate(req: Request, res: Response) {
       return {
         ...item,
         wishlist: data.id,
-        user: req.user?.id,
+        createdBy: req.user?.id,
       }
     })
 
@@ -41,7 +41,7 @@ async function wishlistCreate(req: Request, res: Response) {
 
     const accessorsToCreate = users.map(user => ({
       wishlist: data.id,
-      user: user.id,
+      accessor: user.id,
     }))
 
     if (accessorsToCreate.length) {
@@ -57,19 +57,19 @@ async function wishlistCreate(req: Request, res: Response) {
 
 async function wishlistList(req: Request, res: Response) {
   const accessors = await WishlistAccessor.find({
-    user: req.user?.id,
+    accessor: req.user?.id,
     wishlistAccessorStatus: 'active',
   })
 
   const accessorWishlistIds = accessors.map(accessor => accessor.wishlist)
 
   const filter = {
-    $or: [{ user: req.user?.id }, { _id: { $in: accessorWishlistIds } }],
+    $or: [{ createdBy: req.user?.id }, { _id: { $in: accessorWishlistIds } }],
   }
 
   const query = Wishlist.find(filter)
     .populate({
-      path: 'user',
+      path: 'createdBy',
       select: 'name email',
     })
     .populate({
@@ -121,26 +121,26 @@ async function wishlistGet(req: Request, res: Response) {
 
   // Kullanıcının erişebileceği wishlist erişimcilerini alın
   const accessibleWishlistIds = await WishlistAccessor.find({
-    user: userId,
+    accessor: userId,
     wishlistAccessorStatus: 'active',
   }).distinct('wishlist')
 
   // Wishlist'ı bulun ve ilişkili alanları populate edin
   const wishlist = await Wishlist.findOne({
     _id: wishlistId,
-    $or: [{ user: userId }, { _id: { $in: accessibleWishlistIds } }],
+    $or: [{ createdBy: userId }, { _id: { $in: accessibleWishlistIds } }],
   })
-    .populate('user', 'name email') // User bilgilerini sadece name ve email ile getir
+    .populate('createdBy', 'name email') // User bilgilerini sadece name ve email ile getir
     .populate({
       path: 'items',
       populate: [
         { path: 'reservedBy', select: 'name email' }, // Item'ların reservedBy bilgisini ekle
-        { path: 'user', select: 'name email' }, // Item'ların user bilgisini ekle
+        { path: 'createdBy', select: 'name email' }, // Item'ların user bilgisini ekle
       ],
     })
     .populate({
       path: 'accessors',
-      populate: { path: 'user', select: 'name email' }, // Accessor'ların user bilgilerini ekle
+      populate: { path: 'createdBy', select: 'name email' }, // Accessor'ların user bilgilerini ekle
     })
 
   if (!wishlist) {
@@ -187,7 +187,7 @@ async function wishlistUpdate(req: Request, res: Response) {
 
   // Wishlist güncellemesi
   const wishlist = await Wishlist.findOneAndUpdate(
-    { _id: req.params.id, user: req.user?.id },
+    { _id: req.params.id, createdBy: req.user?.id },
     bodyData,
     { new: true },
   )
@@ -204,7 +204,7 @@ async function wishlistUpdate(req: Request, res: Response) {
         await WishlistItem.create({
           ...item,
           wishlist: wishlist._id,
-          user: req.user?.id,
+          createdBy: req.user?.id,
         })
       } else if (item.action === 'updated') {
         // Mevcut item güncelle
@@ -238,7 +238,7 @@ async function wishlistUpdate(req: Request, res: Response) {
         await WishlistAccessor.create({
           wishlistAccessorStatus: 'pending',
           wishlist: wishlist._id,
-          user: user?.id,
+          accessor: user?.id,
         })
       } else if (accessor.action === 'updated') {
         // maybe later we can have
@@ -282,14 +282,14 @@ async function wishlistUpdate(req: Request, res: Response) {
 // Delete a wishlist by ID
 async function wishlistDelete(req: Request, res: Response) {
   //! get wishlist accessors
-  const accessors = await WishlistAccessor.find({ user: req.user?.id })
+  const accessors = await WishlistAccessor.find({ accessor: req.user?.id })
   const accessorWishlistIds = accessors.map(accessor => accessor.id)
 
   //! delete wishlist
   const data = await Wishlist.findOne({
     _id: req.params.id,
     $or: [
-      { user: req.user?.id }, // Kullanıcı wallet'ın sahibi mi?
+      { createdBy: req.user?.id }, // Kullanıcı wallet'ın sahibi mi?
       { accessors: { $in: accessorWishlistIds } }, // Kullanıcı accessors'da mı?
     ],
   })
@@ -478,7 +478,7 @@ async function wishlistItemUpdate(req: Request, res: Response) {
 async function wishlistAccessorCreate(req: Request, res: Response) {
   const wishlist = await Wishlist.findOne({
     _id: req.params.id,
-    user: req.user?.id,
+    createdBy: req.user?.id,
   })
   if (!wishlist) {
     throw new ApiError('Wishlist not found', ERROR_CODE.EntityNotFound)
@@ -492,7 +492,7 @@ async function wishlistAccessorCreate(req: Request, res: Response) {
 
   const user = await User.findOne({ email: req.body.email })
   const accessorCheck = await WishlistAccessor.findOne({
-    user: user?.id,
+    accessor: user?.id,
     wishlist: req.params.id,
   })
   if (accessorCheck) {
@@ -500,7 +500,7 @@ async function wishlistAccessorCreate(req: Request, res: Response) {
   }
 
   const newAccessor = new WishlistAccessor({
-    user: user?.id,
+    accessor: user?.id,
     wishlist: req.params.id,
   })
   const data = await newAccessor.save()

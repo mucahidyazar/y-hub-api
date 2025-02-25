@@ -25,14 +25,14 @@ async function getWalletType() {
 
   if (walletTypes.length === 0) {
     const walletTypesData = [
-      { label: "Bank", multipleBalance: true, hasPlatform: true },
-      { label: "Case", multipleBalance: true, hasPlatform: true },
-      { label: "Credit Card", multipleBalance: true, hasPlatform: true },
-      { label: "Deposit", multipleBalance: false, hasPlatform: true },
-      { label: "E-Wallet", multipleBalance: true, hasPlatform: true },
-      { label: "Investment", multipleBalance: true, hasPlatform: true },
-      { label: "Loan", multipleBalance: false, hasPlatform: true },
-      { label: "Savings", multipleBalance: true, hasPlatform: true },
+      { label: 'Bank', multipleBalance: true, hasPlatform: true },
+      { label: 'Case', multipleBalance: true, hasPlatform: true },
+      { label: 'Credit Card', multipleBalance: true, hasPlatform: true },
+      { label: 'Deposit', multipleBalance: false, hasPlatform: true },
+      { label: 'E-Wallet', multipleBalance: true, hasPlatform: true },
+      { label: 'Investment', multipleBalance: true, hasPlatform: true },
+      { label: 'Loan', multipleBalance: false, hasPlatform: true },
+      { label: 'Savings', multipleBalance: true, hasPlatform: true },
     ]
     walletTypes = await WalletType.insertMany(walletTypesData)
   }
@@ -51,15 +51,21 @@ async function getUser({ email, password }) {
   return user
 }
 
-const getWallet = async ({ user, walletType }: { user: string, walletType: string }) => {
-  let wallet = await Wallet.findOne({ user })
+const getWallet = async ({
+  createdBy,
+  walletType,
+}: {
+  createdBy: string
+  walletType: string
+}) => {
+  let wallet = await Wallet.findOne({ createdBy })
 
   if (!wallet) {
     wallet = await Wallet.create({
       title: 'My Wallet',
       platform: 'Test',
       description: '',
-      user,
+      createdBy,
       walletType,
     })
     console.info(`Wallet ${wallet.title} is created`)
@@ -83,14 +89,14 @@ async function getWalletBalance({ wallet }: { wallet: string }) {
   return walletBalance
 }
 
-async function getTransactionBrands({ user }: { user: string }) {
+async function getTransactionBrands({ createdBy }: { createdBy: string }) {
   let transactionBrands = await TransactionBrand.find()
 
   if (transactionBrands.length === 0) {
     const brandsData = transactionBrands.map(b => ({
       name: toCamelCase(b.id),
       usageCount: 0,
-      user
+      createdBy,
     }))
 
     await TransactionBrand.insertMany(brandsData)
@@ -101,14 +107,14 @@ async function getTransactionBrands({ user }: { user: string }) {
   return transactionBrands
 }
 
-async function getTransactionCategories({ user }: { user: string }) {
+async function getTransactionCategories({ createdBy }: { createdBy: string }) {
   let transactionCategories = await TransactionCategory.find()
 
   if (transactionCategories.length === 0) {
     const categoriesData = categories.map(c => ({
       name: toCamelCase(c.id),
       usageCount: 0,
-      user,
+      createdBy,
       icon: c.icon,
       color: getRandomPastelColor(),
     }))
@@ -121,13 +127,13 @@ async function getTransactionCategories({ user }: { user: string }) {
   return transactionCategories
 }
 
-async function getTransactions({ user, wallet, walletBalance }) {
-  const transactionCategories = await getTransactionCategories({ user })
+async function getTransactions({ createdBy, wallet, walletBalance }) {
+  const transactionCategories = await getTransactionCategories({ createdBy })
 
   const transactions = transactionCategories.map((t, index) => ({
     type: 'expense',
     date: generateRandomDate({ minYear: 2015, maxYear: 2023 }),
-    user,
+    createdBy,
     wallet,
     walletBalance,
     // eslint-disable-next-line security/detect-object-injection
@@ -143,17 +149,29 @@ async function getTransactions({ user, wallet, walletBalance }) {
 }
 
 async function feed() {
-  const firstWalletType = await getWalletType();
+  const firstWalletType = await getWalletType()
 
-  const adminUser = await getUser({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD })
+  const adminUser = await getUser({
+    email: ADMIN_EMAIL,
+    password: ADMIN_PASSWORD,
+  })
   const meUser = await getUser({ email: ME_EMAIL, password: ME_PASSWORD })
 
-  const meWallet = await getWallet({ user: meUser.id, walletType: firstWalletType.id })
-  const meWalletBalance = await getWalletBalance({ wallet: meWallet.id })
+  const meWallet = await getWallet({
+    createdBy: meUser.id,
+    walletType: firstWalletType.id,
+  })
+  const meWalletBalance = await getWalletBalance({
+    wallet: meWallet.id,
+  })
 
-  await getTransactionBrands({ user: adminUser.id })
+  await getTransactionBrands({ createdBy: adminUser.id })
 
-  await getTransactions({ user: meUser.id, wallet: meWallet.id, walletBalance: meWalletBalance.id })
+  await getTransactions({
+    createdBy: meUser.id,
+    wallet: meWallet.id,
+    walletBalance: meWalletBalance.id,
+  })
   // const subscriptionTransactionsMap = [
   //   'daily',
   //   'daily',

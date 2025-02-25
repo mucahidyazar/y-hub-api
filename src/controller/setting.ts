@@ -14,7 +14,7 @@ import { ApiResponse } from '@/utils'
 
 async function settingGet(req: Request, res: Response) {
   const data = await Setting.findOne({
-    user: req.user._id,
+    createdBy: req.user._id,
   })
 
   if (!data) {
@@ -55,18 +55,18 @@ async function settingBackup(req: Request, res: Response) {
     wishlists,
     wishlistAccessors,
   ] = (await Promise.all([
-    Calculation.find({ user: userId }).lean(),
-    Setting.findOne({ user: userId }).lean(),
-    Transaction.find({ user: userId })
+    Calculation.find({ createdBy: userId }).lean(),
+    Setting.findOne({ createdBy: userId }).lean(),
+    Transaction.find({ createdBy: userId })
       .populate('wallet')
       .populate('transactionCategory')
       .populate('transactionBrand')
       .lean(),
     User.findById(userId).lean(),
-    Wallet.find({ user: userId }).populate('walletType').lean(),
-    WalletAccessor.find({ user: userId }).lean(),
-    Wishlist.find({ user: userId }).lean(),
-    WishlistAccessor.find({ user: userId }).lean(),
+    Wallet.find({ createdBy: userId }).populate('walletType').lean(),
+    WalletAccessor.find({ createdBy: userId }).lean(),
+    Wishlist.find({ createdBy: userId }).lean(),
+    WishlistAccessor.find({ createdBy: userId }).lean(),
   ])) as any[]
 
   // Hassas bilgileri temizle
@@ -109,13 +109,13 @@ async function settingRestore(req: Request, res: Response) {
 
   // Mevcut kullanıcının verilerini temizle
   await Promise.all([
-    Calculation.deleteMany({ user: userId }),
-    Setting.deleteMany({ user: userId }),
-    Transaction.deleteMany({ user: userId }),
-    Wallet.deleteMany({ user: userId }),
-    WalletAccessor.deleteMany({ user: userId }),
-    Wishlist.deleteMany({ user: userId }),
-    WishlistAccessor.deleteMany({ user: userId }),
+    Calculation.deleteMany({ createdBy: userId }),
+    Setting.deleteMany({ createdBy: userId }),
+    Transaction.deleteMany({ createdBy: userId }),
+    Wallet.deleteMany({ createdBy: userId }),
+    WalletAccessor.deleteMany({ createdBy: userId }),
+    Wishlist.deleteMany({ createdBy: userId }),
+    WishlistAccessor.deleteMany({ createdBy: userId }),
   ])
 
   // Backup verilerini geri yükle
@@ -125,38 +125,44 @@ async function settingRestore(req: Request, res: Response) {
         Calculation.insertMany(
           backupData.calculations.map((item: any) => ({
             ...item,
-            user: userId,
+            createdBy: userId,
           })),
         ),
       backupData.settings &&
-        Setting.create({ ...backupData.settings, user: userId }),
+        Setting.create({ ...backupData.settings, createdBy: userId }),
       backupData.transactions?.length > 0 &&
         Transaction.insertMany(
           backupData.transactions.map((item: any) => ({
             ...item,
-            user: userId,
+            createdBy: userId,
           })),
         ),
       backupData.wallets?.length > 0 &&
         Wallet.insertMany(
-          backupData.wallets.map((item: any) => ({ ...item, user: userId })),
+          backupData.wallets.map((item: any) => ({
+            ...item,
+            createdBy: userId,
+          })),
         ),
       backupData.walletAccessors?.length > 0 &&
         WalletAccessor.insertMany(
           backupData.walletAccessors.map((item: any) => ({
             ...item,
-            user: userId,
+            createdBy: userId,
           })),
         ),
       backupData.wishlists?.length > 0 &&
         Wishlist.insertMany(
-          backupData.wishlists.map((item: any) => ({ ...item, user: userId })),
+          backupData.wishlists.map((item: any) => ({
+            ...item,
+            createdBy: userId,
+          })),
         ),
       backupData.wishlistAccessors?.length > 0 &&
         WishlistAccessor.insertMany(
           backupData.wishlistAccessors.map((item: any) => ({
             ...item,
-            user: userId,
+            createdBy: userId,
           })),
         ),
     ].filter(Boolean),
@@ -180,13 +186,13 @@ async function settingReset(req: Request, res: Response) {
 
   // Tüm kullanıcı verilerini temizle
   await Promise.all([
-    Calculation.deleteMany({ user: userId }),
-    Setting.deleteMany({ user: userId }),
-    Transaction.deleteMany({ user: userId }),
-    Wallet.deleteMany({ user: userId }),
-    WalletAccessor.deleteMany({ user: userId }),
-    Wishlist.deleteMany({ user: userId }),
-    WishlistAccessor.deleteMany({ user: userId }),
+    Calculation.deleteMany({ createdBy: userId }),
+    Setting.deleteMany({ createdBy: userId }),
+    Transaction.deleteMany({ createdBy: userId }),
+    Wallet.deleteMany({ createdBy: userId }),
+    WalletAccessor.deleteMany({ createdBy: userId }),
+    Wishlist.deleteMany({ createdBy: userId }),
+    WishlistAccessor.deleteMany({ createdBy: userId }),
   ])
 
   // User'ı varsayılan ayarlara döndür
@@ -203,7 +209,7 @@ async function settingReset(req: Request, res: Response) {
 
   // Yeni settings oluştur
   await Setting.create({
-    user: userId,
+    createdBy: userId,
     // Varsayılan ayarlar
     theme: 'light',
     language: 'en',

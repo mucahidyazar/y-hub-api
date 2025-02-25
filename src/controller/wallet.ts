@@ -340,7 +340,7 @@ export class WalletController extends BaseController {
   @DApiResponse(500, 'Internal Server Error', apiResponseSchema(false))
   public async walletDelete(req: Request, res: Response) {
     //! get wallet accessors
-    const accessors = await WalletAccessor.find({ user: req.user?.id })
+    const accessors = await WalletAccessor.find({ accessor: req.user?.id })
     const accessorWalletIds = accessors.map(accessor => accessor.id)
 
     //! get wallet

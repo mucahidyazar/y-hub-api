@@ -53,7 +53,7 @@ async function userMeDelete(req: Request, res: Response) {
   // Tüm kullanıcı verilerini sil
   await Promise.all(
     relatedUserModels.map(
-      async model => await model.deleteMany({ user: userId }),
+      async model => await model.deleteMany({ createdBy: userId }),
     ),
   )
   const data = await User.findByIdAndDelete(userId)

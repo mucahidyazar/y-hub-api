@@ -64,7 +64,7 @@ async function transactionBrandUpdate(req: Request, res: Response) {
   }
 
   const data = await TransactionBrand.findOneAndUpdate(
-    { _id: req.params.id, user: req.user?.id },
+    { _id: req.params.id, createdBy: req.user?.id },
     { $set: req.body },
     { new: true, runValidators: true },
   )
@@ -82,7 +82,7 @@ async function transactionBrandUpdate(req: Request, res: Response) {
 async function transactionBrandDelete(req: Request, res: Response) {
   const data = await TransactionBrand.findOneAndDelete({
     _id: req.params.id,
-    user: req.user?.id,
+    createdBy: req.user?.id,
   })
 
   if (!data) {

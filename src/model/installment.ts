@@ -254,7 +254,7 @@ installmentSchema.statics.getActiveInstallments = async function (
   userId: string,
 ) {
   return this.find({
-    user: new mongoose.Types.ObjectId(userId),
+    createdBy: new mongoose.Types.ObjectId(userId),
     status: 'continuing',
     endDate: { $gte: new Date() },
   }).sort({ startDate: -1 })

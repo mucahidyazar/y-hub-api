@@ -86,7 +86,7 @@ walletSchema.methods.addAccessor = async function (userId: string) {
   const WalletAccessor = mongoose.model('WalletAccessor')
   return new WalletAccessor({
     wallet: this._id,
-    user: userId,
+    accessor: userId,
     status: 'pending',
   }).save()
 }
