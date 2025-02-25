@@ -10,12 +10,18 @@ import { Wallet } from '@/model/wallet'
 import { IWalletAccessor, WalletAccessor } from '@/model/wallet-accessor'
 import { WalletBalance } from '@/model/wallet-balance'
 import { WalletType } from '@/model/wallet-type'
-import { PaginationRequestParameters, walletCreateDto } from '@/requestModel'
+import {
+  LimitParameter,
+  PageParameter,
+  PaginationRequestParameters,
+  walletCreateDto,
+} from '@/requestModel'
 import { PushNotificationService } from '@/services/push-notification'
 import { ApiResponse, apiResponseSchema } from '@/utils'
 import {
   ApiBody,
   ApiOperation,
+  ApiParam,
   DApiResponse,
   Delete,
   Get,
@@ -32,9 +38,6 @@ export class WalletController extends BaseController {
     description: 'Create a new wallet',
     tags: ['Wallet'],
     summary: 'Create wallet',
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, walletCreateDto)
   @DApiResponse(201, 'Wallet created successfully', apiResponseSchema(true))
@@ -101,14 +104,13 @@ export class WalletController extends BaseController {
   }
 
   @Get(ROUTES.v1.wallet.list)
+  @ApiParam('query', 'page', PageParameter)
+  @ApiParam('query', 'limit', LimitParameter)
   @ApiOperation({
     operationId: 'walletList',
     summary: 'List wallets',
     description: 'List all wallets for the current user',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @DApiResponse(
     200,
@@ -169,9 +171,6 @@ export class WalletController extends BaseController {
     summary: 'Get a wallet by ID',
     description: 'Get a wallet by its ID',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -225,9 +224,6 @@ export class WalletController extends BaseController {
     summary: 'Update a wallet by ID',
     description: 'Update a wallet by its ID',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -324,9 +320,6 @@ export class WalletController extends BaseController {
     summary: 'Delete a wallet by ID',
     description: 'Delete a wallet by its ID',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -380,9 +373,6 @@ export class WalletController extends BaseController {
     summary: 'List transactions for a wallet',
     description: 'List all transactions for a wallet by its ID',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -442,9 +432,6 @@ export class WalletController extends BaseController {
     summary: 'Create a new wallet accessor',
     description: 'Create a new wallet accessor for a wallet',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -518,9 +505,6 @@ export class WalletController extends BaseController {
     summary: 'Delete a wallet accessor',
     description: 'Delete a wallet accessor by its ID',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -555,9 +539,6 @@ export class WalletController extends BaseController {
     summary: 'Update a wallet accessor',
     description: 'Update a wallet accessor by its ID',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(
@@ -607,9 +588,6 @@ export class WalletController extends BaseController {
     summary: 'List wallet types',
     description: 'List all wallet types',
     tags: ['Wallet'],
-    security: {
-      bearerAuth: [],
-    },
   })
   @ApiBody(true, z.object({}))
   @DApiResponse(

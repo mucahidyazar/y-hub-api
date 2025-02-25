@@ -23,7 +23,6 @@ export class AuthController extends BaseController {
       'Create a new user account with email and password authentication. Returns a JWT access token that can be used to authenticate future requests.',
     tags: ['Authentication'],
     summary: 'Sign up',
-    security: undefined,
   })
   @ApiBody(true, signUpDto)
   @DApiResponse(
@@ -50,7 +49,6 @@ export class AuthController extends BaseController {
     description: 'Authenticate existing user and return JWT token',
     tags: ['Authentication'],
     summary: 'Sign in',
-    security: undefined,
   })
   @ApiBody(true, signInDto)
   @DApiResponse(

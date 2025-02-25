@@ -3,24 +3,26 @@
 import 'zod-openapi/extend'
 import { z } from 'zod'
 
+const PageParameter = z.number().optional().default(1).openapi({
+  description: 'The page number',
+  example: 1,
+  default: 1,
+})
+
+const LimitParameter = z.number().optional().default(12).openapi({
+  description: 'The number of items per page',
+  example: 12,
+  default: 12,
+})
+
 const PaginationRequestParameters = z
   .object({
-    page: z.number().min(1).default(1).openapi({
-      description: 'The page number',
-      example: 1,
-      default: 1,
-    }),
-    limit: z.number().min(1).default(12).openapi({
-      description: 'The number of items per page',
-      example: 12,
-      default: 12,
-    }),
+    page: PageParameter,
+    limit: LimitParameter,
   })
   .openapi({
     description: 'The pagination request parameters',
     title: 'Pagination',
   })
 
-type TPaginationRequestParameters = z.infer<typeof PaginationRequestParameters>
-
-export { PaginationRequestParameters, TPaginationRequestParameters }
+export { LimitParameter, PageParameter, PaginationRequestParameters }
