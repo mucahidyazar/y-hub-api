@@ -350,7 +350,7 @@ subscriptionSchema.statics.getActiveSubscriptions = async function (
   userId: string,
 ) {
   return this.find({
-    user: userId,
+    createdBy: userId,
     status: 'continuing',
     endDate: { $gt: new Date() },
   }).sort({ startDate: -1 })

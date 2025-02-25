@@ -8,7 +8,7 @@ import { ApiResponse } from '@/utils'
 async function calculationCreate(req: Request, res: Response) {
   const newCalculation = new Calculation({
     ...req.body,
-    user: req.user._id,
+    createdBy: req.user._id,
   })
 
   const data = await newCalculation.save()
@@ -24,7 +24,7 @@ async function calculationList(req: Request, res: Response) {
   const { populateFields: _populateFields, ...queries } = req.query
 
   const data = await Calculation.find({
-    user: req.user._id,
+    createdBy: req.user._id,
     ...queries,
   })
 

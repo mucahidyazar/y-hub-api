@@ -119,7 +119,7 @@ transactionSchema.statics.getSubscriptionsSummary = async function (
     {
       $match: {
         type: 'subscription',
-        user: new mongoose.Types.ObjectId(userId),
+        createdBy: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -139,7 +139,7 @@ transactionSchema.statics.getInstallmentsSummary = async function (
     {
       $match: {
         type: 'installment',
-        user: new mongoose.Types.ObjectId(userId),
+        createdBy: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -163,7 +163,7 @@ transactionSchema.statics.getMonthlyStats = async function (
   return this.aggregate([
     {
       $match: {
-        user: new mongoose.Types.ObjectId(userId),
+        createdBy: new mongoose.Types.ObjectId(userId),
         date: { $gte: startDate, $lte: endDate },
       },
     },
