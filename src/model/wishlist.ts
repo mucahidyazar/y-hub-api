@@ -12,8 +12,8 @@ interface IWishlist extends IBaseModel {
   isPublic: boolean
   isReservable: boolean
 
-  items: mongoose.Types.ObjectId[] | IWishlistItem['_id'][]
-  accessors: mongoose.Types.ObjectId[] | IAccessor['_id'][]
+  items: mongoose.Types.ObjectId[] | IWishlistItem[]
+  accessors: mongoose.Types.ObjectId[] | IAccessor[]
 }
 
 const wishlistSchema = new mongoose.Schema({

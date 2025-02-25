@@ -10,9 +10,9 @@ interface IWalletBalance extends IBaseModel {
   amount: number
   currency: string
 
-  wallet: mongoose.Types.ObjectId | IWallet['_id']
+  wallet: mongoose.Types.ObjectId | IWallet
 
-  transactions: mongoose.Types.ObjectId[] | ITransaction['_id'][]
+  transactions: mongoose.Types.ObjectId[] | ITransaction[]
 }
 
 const walletBalanceSchema = new mongoose.Schema({

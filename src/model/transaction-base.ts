@@ -13,12 +13,12 @@ interface IBaseTransaction extends IBaseModel {
   direction: 'income' | 'expense'
   amount: number
 
-  category: mongoose.Types.ObjectId | ITransactionCategory['_id']
+  category: mongoose.Types.ObjectId | ITransactionCategory
 
-  brand: mongoose.Types.ObjectId | ITransactionBrand['_id']
+  brand: mongoose.Types.ObjectId | ITransactionBrand
 
-  wallet: mongoose.Types.ObjectId | IWallet['_id']
-  walletBalance: mongoose.Types.ObjectId | IWalletBalance['_id']
+  wallet: mongoose.Types.ObjectId | IWallet
+  walletBalance: mongoose.Types.ObjectId | IWalletBalance
 }
 
 const baseTransactionSchema = new mongoose.Schema({

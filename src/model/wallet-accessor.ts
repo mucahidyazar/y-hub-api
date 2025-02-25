@@ -7,9 +7,9 @@ import { IWallet } from './wallet'
 interface IWalletAccessor extends IBaseModel {
   walletAccessorStatus: 'active' | 'pending'
 
-  accessor: mongoose.Types.ObjectId | IUser['_id']
+  accessor: mongoose.Types.ObjectId | IUser
 
-  wallet: mongoose.Types.ObjectId | IWallet['_id']
+  wallet: mongoose.Types.ObjectId | IWallet
 }
 
 const walletAccessorSchema = new mongoose.Schema({
