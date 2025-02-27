@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { logger } from '@/client'
 import { IUser, User } from '@/model/user'
 import { IWallet, Wallet } from '@/model/wallet'
+import { WalletAccessor } from '@/model/wallet-accessor'
 import { IWalletBalance, WalletBalance } from '@/model/wallet-balance'
 import { IWalletType, WalletType } from '@/model/wallet-type'
 
@@ -150,6 +151,80 @@ async function seedWallets(
   return wallets
 }
 
+// Seed wallet accessors for users
+async function seedWalletAccessors(
+  wallets: IWallet[],
+  users: IUser[],
+): Promise<void> {
+  logger.info('Seeding wallet accessors...')
+
+  // Filter out users who will be accessors (not owners)
+  const accessorUsers = sampleNormalUsers
+
+  for (const wallet of wallets) {
+    // Skip some wallets randomly to avoid all wallets having accessors
+    if (Math.random() > 0.7) continue
+
+    // Get owner from wallet
+    const ownerUser = users.find(user => user.id === wallet.owner.toString())
+    if (!ownerUser) {
+      logger.info(`Owner not found for wallet ${wallet.title}, skipping...`)
+      continue
+    }
+
+    // Generate random accessors
+    const accessorCount =
+      Math.floor(Math.random() * (sampleNormalUsers.length - 2)) + 1
+
+    // Get potential accessors (excluding the owner)
+    const potentialAccessors = accessorUsers.filter(
+      user => user.id !== wallet.owner.toString(),
+    )
+
+    // Randomly select accessors
+    for (
+      let i = 0;
+      i < Math.min(accessorCount, potentialAccessors.length);
+      i++
+    ) {
+      // Randomly select an accessor
+      const randomIndex = Math.floor(Math.random() * potentialAccessors.length)
+      const accessor = potentialAccessors[randomIndex]
+
+      // Remove selected accessor to avoid duplicates
+      potentialAccessors.splice(randomIndex, 1)
+
+      // Check if accessor already exists
+      const existingAccessor = await WalletAccessor.findOne({
+        wallet: wallet.id,
+        accessor: accessor.id,
+      })
+
+      if (existingAccessor) {
+        logger.info(
+          `Accessor ${accessor.email} already exists for wallet ${wallet.title}, skipping...`,
+        )
+        continue
+      }
+
+      // Create accessor
+      await WalletAccessor.create({
+        wallet: wallet.id,
+        accessor: accessor.id,
+        status: 'active',
+        createdBy: wallet.owner,
+        createdAt: new Date(),
+      })
+
+      logger.info(
+        `Created accessor ${accessor.email} for wallet ${wallet.title}`,
+      )
+    }
+  }
+
+  logger.info('Finished seeding wallet accessors')
+}
+
 // Seed wallet balances
 async function seedWalletBalances(
   wallets: IWallet[],
@@ -259,6 +334,9 @@ async function feed() {
 
     // Seed wallets
     const wallets = await seedWallets(users, walletTypeDocs)
+
+    // Seed wallet accessors
+    await seedWalletAccessors(wallets, users)
 
     // Seed wallet balances
     await seedWalletBalances(wallets, adminUser.id)
