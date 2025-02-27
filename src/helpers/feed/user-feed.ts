@@ -1,6 +1,8 @@
-/* eslint-disable no-console */
+import { logger } from '@/client'
 import { Role } from '@/model/role'
 import { IUser, User } from '@/model/user'
+
+import { dataUsers } from './constants'
 
 // Define user creator (same as the one used in other seeds)
 const userCreatorData: Partial<IUser> = {
@@ -28,119 +30,6 @@ const userRoles: Record<string, string[]> = {
   'multi@example.com': ['User Manager', 'Content Manager'], // User with multiple roles
 }
 
-// Define sample users
-const userData: Partial<IUser>[] = [
-  // Admin users
-  {
-    firstName: 'Admin',
-    lastName: 'User',
-    email: 'admin@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'System',
-    lastName: 'Service',
-    email: 'system@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'App',
-    lastName: 'Administrator',
-    email: 'administrator@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Manager users
-  {
-    firstName: 'Org',
-    lastName: 'Admin',
-    email: 'orgadmin@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'User',
-    lastName: 'Manager',
-    email: 'usermanager@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'Content',
-    lastName: 'Manager',
-    email: 'contentmanager@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'Transaction',
-    lastName: 'Manager',
-    email: 'transactionmanager@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Regular users
-  {
-    firstName: 'Standard',
-    lastName: 'User',
-    email: 'user@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'Guest',
-    lastName: 'User',
-    email: 'guest@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'View',
-    lastName: 'Only',
-    email: 'viewer@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Special users
-  {
-    firstName: 'API',
-    lastName: 'Client',
-    email: 'apiclient@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'System',
-    lastName: 'Auditor',
-    email: 'auditor@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Multi-role user
-  {
-    firstName: 'Multi',
-    lastName: 'Role',
-    email: 'multi@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Inactive user
-  {
-    firstName: 'Inactive',
-    lastName: 'User',
-    email: 'inactive@example.com',
-    password: '123456789-Aa',
-    status: 'inactive',
-  },
-]
-
 async function feed() {
   try {
     // First ensure we have a user creator
@@ -159,10 +48,10 @@ async function feed() {
     // Fetch all roles to get their IDs
     const allRoles = await Role.find({ status: 'active' })
 
-    console.log(`Fetched ${allRoles.length} roles from database`)
+    logger.info(`Fetched ${allRoles.length} roles from database`)
 
     if (allRoles.length === 0) {
-      console.warn('Warning: No roles found in database. Run role seed first.')
+      logger.warn('Warning: No roles found in database. Run role seed first.')
       throw new Error('No roles found in database. Run role seed first.')
     }
 
@@ -173,11 +62,11 @@ async function feed() {
     })
 
     // Process each user and assign roles
-    for (const user of userData) {
+    for (const user of dataUsers) {
       // Skip if user exists
       const existingUser = await User.findOne({ email: user.email })
       if (existingUser) {
-        console.log(
+        logger.info(
           `User with email "${user.email}" already exists, updating roles...`,
         )
 
@@ -194,7 +83,7 @@ async function feed() {
             { roles: roleIds },
             { new: true },
           )
-          console.log(
+          logger.info(
             `Updated user "${user.email}" with ${roleIds.length} roles`,
           )
         }
@@ -213,17 +102,17 @@ async function feed() {
 
       // Create the user with roles
       const createdUser = await User.create(user)
-      console.log(`Created user "${user.email}" with ${roleIds.length} roles`)
+      logger.info(`Created user "${user.email}" with ${roleIds.length} roles`)
 
       // Log the assigned roles
       if (createdUser && roleIds.length > 0) {
-        console.log(`Roles for ${user.email}: ${rolesToAssign.join(', ')}`)
+        logger.info(`Roles for ${user.email}: ${rolesToAssign.join(', ')}`)
       }
     }
 
-    console.log('User seeding completed successfully.')
+    logger.info('User seeding completed successfully.')
   } catch (error) {
-    console.error('Error in user seed:', error)
+    logger.error('Error in user seed:', error)
     throw error
   }
 }
@@ -231,8 +120,8 @@ async function feed() {
 // Run the seed function
 feed()
   .then(() => {
-    console.log('User seed process completed.')
+    logger.info('User seed process completed.')
   })
   .catch(err => {
-    console.error('User seed process failed:', err)
+    logger.error('User seed process failed:', err)
   })

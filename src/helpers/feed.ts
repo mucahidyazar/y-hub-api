@@ -1,4 +1,7 @@
-/* eslint-disable no-console */
+import '../config/db'
+
+import { logger } from '@/client'
+
 import { categories } from '../constants/categories'
 import { Transaction } from '../model/transaction'
 import { TransactionBrand } from '../model/transaction-brand'
@@ -9,7 +12,6 @@ import { WalletBalance } from '../model/wallet-balance'
 import { WalletType } from '../model/wallet-type'
 import { toCamelCase } from '../utils/string'
 
-import '../config/db'
 import { getRandomPastelColor } from './color'
 import { generateRandomDate } from './date'
 import { getRandomNumber } from './number'
@@ -46,7 +48,7 @@ async function getUser({ email, password }) {
   if (!user) {
     user = await User.create({ email, password })
   }
-  console.info(`User ${user.email} is created`)
+  logger.info(`User ${user.email} is created`)
 
   return user
 }
@@ -68,7 +70,7 @@ const getWallet = async ({
       createdBy,
       walletType,
     })
-    console.info(`Wallet ${wallet.title} is created`)
+    logger.info(`Wallet ${wallet.title} is created`)
   }
 
   return wallet
@@ -83,7 +85,7 @@ async function getWalletBalance({ wallet }: { wallet: string }) {
       currency: 'USD',
       wallet,
     })
-    console.info(`Wallet Balance ${walletBalance.amount} is created`)
+    logger.info(`Wallet Balance ${walletBalance.amount} is created`)
   }
 
   return walletBalance
@@ -100,7 +102,7 @@ async function getTransactionBrands({ createdBy }: { createdBy: string }) {
     }))
 
     await TransactionBrand.insertMany(brandsData)
-    console.info('Brands are fed')
+    logger.info('Brands are fed')
     transactionBrands = await TransactionBrand.find()
   }
 
@@ -120,7 +122,7 @@ async function getTransactionCategories({ createdBy }: { createdBy: string }) {
     }))
 
     await TransactionCategory.insertMany(categoriesData)
-    console.info('Categories are fed')
+    logger.info('Categories are fed')
     transactionCategories = await TransactionCategory.find()
   }
 
@@ -143,7 +145,7 @@ async function getTransactions({ createdBy, wallet, walletBalance }) {
   }))
 
   await Transaction.insertMany(transactions)
-  console.info('Transactions are fed')
+  logger.info('Transactions are fed')
 
   return transactions
 }
@@ -204,6 +206,6 @@ async function feed() {
 }
 
 feed().then(() => {
-  console.info('Feed is completed')
+  logger.info('Feed is completed')
   process.exit(0)
 })

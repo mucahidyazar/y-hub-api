@@ -1,5 +1,6 @@
-import jwt, { JwtPayload } from 'jsonwebtoken'
 import 'dotenv/config'
+
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 import { ERROR_CODE } from '@/constants'
 import { User } from '@/model/user'
@@ -17,20 +18,20 @@ function extractBearerToken(authHeader: string | undefined): string | null {
 }
 
 export const middlewareAuth = async (req, res, next) => {
-  const accessToken = extractBearerToken(req.header('authorization'))
-  if (!accessToken || !jwt.verify(accessToken, process.env.JWT_SECRET)) {
-    return res.response({
-      statusCode: 401,
-      apiResponse: ApiResponse.failure({
-        type: 'Unauthorized',
-        code: ERROR_CODE.Unauthorized,
-        message: 'No token provided',
-        detail: null,
-      }),
-    })
-  }
-
   try {
+    const accessToken = extractBearerToken(req.header('authorization'))
+    if (!accessToken || !jwt.verify(accessToken, process.env.JWT_SECRET)) {
+      return res.response({
+        statusCode: 401,
+        apiResponse: ApiResponse.failure({
+          type: 'Unauthorized',
+          code: ERROR_CODE.Unauthorized,
+          message: 'No token provided',
+          detail: null,
+        }),
+      })
+    }
+
     const decoded = jwt.verify(
       accessToken,
       process.env.JWT_SECRET,

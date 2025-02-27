@@ -1,6 +1,7 @@
-/* eslint-disable no-console */
+
 import mongoose from 'mongoose'
 
+import { logger } from '@/client'
 import { IPermission, Permission } from '@/model/permission'
 import { IRole, Role } from '@/model/role'
 import { IUser, User } from '@/model/user'
@@ -568,7 +569,7 @@ const userData: Partial<IUser>[] = [
 async function seedPermissions(
   adminId: mongoose.Types.ObjectId,
 ): Promise<IPermission[]> {
-  console.log('\n=== SEEDING PERMISSIONS ===')
+  logger.info('\n=== SEEDING PERMISSIONS ===')
 
   const permissions: IPermission[] = []
 
@@ -578,7 +579,7 @@ async function seedPermissions(
     })
 
     if (existingPermission) {
-      console.log(`Permission "${permission.name}" already exists, skipping.`)
+      logger.info(`Permission "${permission.name}" already exists, skipping.`)
       permissions.push(existingPermission)
       continue
     }
@@ -588,11 +589,11 @@ async function seedPermissions(
 
     // Create the permission
     const createdPermission = await Permission.create(permission)
-    console.log(`Created permission: ${permission.name}`)
+    logger.info(`Created permission: ${permission.name}`)
     permissions.push(createdPermission)
   }
 
-  console.log(`Seeded ${permissions.length} permissions.`)
+  logger.info(`Seeded ${permissions.length} permissions.`)
   return permissions
 }
 
@@ -601,7 +602,7 @@ async function seedRoles(
   permissions: IPermission[],
   adminId: mongoose.Types.ObjectId,
 ): Promise<IRole[]> {
-  console.log('\n=== SEEDING ROLES ===')
+  logger.info('\n=== SEEDING ROLES ===')
 
   // Create a map of permission names to their IDs for quick lookup
   const permissionMap = new Map<string, mongoose.Types.ObjectId>()
@@ -615,7 +616,7 @@ async function seedRoles(
     // Skip if role exists
     const existingRole = await Role.findOne({ name: role.name })
     if (existingRole) {
-      console.log(`Role "${role.name}" already exists, skipping creation.`)
+      logger.info(`Role "${role.name}" already exists, skipping creation.`)
       roles.push(existingRole)
       continue
     }
@@ -632,13 +633,13 @@ async function seedRoles(
 
     // Create the role with its permissions
     const createdRole = await Role.create(role)
-    console.log(
+    logger.info(
       `Created role "${role.name}" with ${permissionIds.length} permissions`,
     )
     roles.push(createdRole)
   }
 
-  console.log(`Seeded ${roles.length} roles.`)
+  logger.info(`Seeded ${roles.length} roles.`)
   return roles
 }
 
@@ -647,7 +648,7 @@ async function seedUsers(
   roles: IRole[],
   adminId: mongoose.Types.ObjectId,
 ): Promise<IUser[]> {
-  console.log('\n=== SEEDING USERS ===')
+  logger.info('\n=== SEEDING USERS ===')
 
   // Create a map of role names to their IDs for quick lookup
   const roleMap = new Map<string, mongoose.Types.ObjectId>()
@@ -665,7 +666,7 @@ async function seedUsers(
     // Skip if user exists
     const existingUser = await User.findOne({ email: user.email })
     if (existingUser) {
-      console.log(`User "${user.email}" already exists, updating roles...`)
+      logger.info(`User "${user.email}" already exists, updating roles...`)
 
       // Get role IDs for this user
       const rolesToAssign = userRoles[user.email as string] || []
@@ -680,7 +681,7 @@ async function seedUsers(
           { roles: roleIds },
           { new: true },
         )
-        console.log(
+        logger.info(
           `Updated user "${user.email}" with ${roleIds.length} roles: ${rolesToAssign.join(', ')}`,
         )
         if (updatedUser) {
@@ -711,11 +712,11 @@ async function seedUsers(
 
     // Create the user with roles
     const createdUser = await User.create(user)
-    console.log(`Created user "${user.email}" with ${roleIds.length} roles`)
+    logger.info(`Created user "${user.email}" with ${roleIds.length} roles`)
 
     // Log the assigned roles
     if (roleIds.length > 0) {
-      console.log(`Roles for ${user.email}: ${rolesToAssign.join(', ')}`)
+      logger.info(`Roles for ${user.email}: ${rolesToAssign.join(', ')}`)
     }
 
     users.push(createdUser)
@@ -746,11 +747,11 @@ async function seedUsers(
         { createdBy: adminUser._id },
       )
 
-      console.log('Updated creator references to use the new admin user ID.')
+      logger.info('Updated creator references to use the new admin user ID.')
     }
   }
 
-  console.log(`Seeded ${users.length} users.`)
+  logger.info(`Seeded ${users.length} users.`)
   return users
 }
 
@@ -760,7 +761,7 @@ async function seedUsers(
 
 async function feed() {
   try {
-    console.log('Starting user authorization seed process...')
+    logger.info('Starting user authorization seed process...')
 
     // 1. Create or get admin user first
     let adminUser = await User.findOne({ email: adminUserData.email })
@@ -775,9 +776,9 @@ async function feed() {
         throw new Error('Failed to create admin user')
       }
 
-      console.log('Admin user created')
+      logger.info('Admin user created')
     } else {
-      console.log('Admin user already exists')
+      logger.info('Admin user already exists')
     }
 
     // 2. Seed permissions using admin as creator
@@ -789,10 +790,10 @@ async function feed() {
     // 4. Seed users with roles (including updating admin's roles)
     await seedUsers(roles, adminUser.id)
 
-    console.log('\nUser authorization seeding completed successfully!')
+    logger.info('\nUser authorization seeding completed successfully!')
     return { success: true }
   } catch (error) {
-    console.error('Error in user authorization seed:', error)
+    logger.error('Error in user authorization seed:', error)
     throw error
   }
 }
@@ -800,9 +801,9 @@ async function feed() {
 export async function userAuthFeed() {
   try {
     await feed()
-    console.log('User auth seed process completed.')
+    logger.info('User auth seed process completed.')
   } catch (error) {
-    console.error('User auth seed process failed:', error)
+    logger.error('User auth seed process failed:', error)
     throw error
   }
 }

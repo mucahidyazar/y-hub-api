@@ -106,12 +106,10 @@ httpServer.listen(CONFIG.port)
 
 // get the unhandled rejection and throw it to another fallback handler we already have.
 process.on('unhandledRejection', (error: Error, _promise: Promise<any>) => {
-  // eslint-disable-next-line no-console
-  console.error('unhandledRejection', error)
+  logger.error('unhandledRejection', error)
   throw error
 })
 
 process.on('uncaughtException', (error: Error) => {
-  // eslint-disable-next-line no-console
-  console.error('uncaughtException', error)
+  logger.error('uncaughtException', error)
 })

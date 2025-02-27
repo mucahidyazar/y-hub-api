@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import mongoose from 'mongoose'
 
+import { logger } from '@/client'
 import { IUser, User } from '@/model/user'
 import { IWallet, Wallet } from '@/model/wallet'
 import { IWalletBalance, WalletBalance } from '@/model/wallet-balance'
@@ -102,7 +102,7 @@ function getRandomDate(): Date {
 
   return new Date(
     oneYearAgo.getTime() +
-      Math.random() * (now.getTime() - oneYearAgo.getTime()),
+    Math.random() * (now.getTime() - oneYearAgo.getTime()),
   )
 }
 
@@ -110,7 +110,7 @@ function getRandomDate(): Date {
 async function seedWalletTypes(
   adminId: mongoose.Types.ObjectId,
 ): Promise<IWalletType[]> {
-  console.log('Seeding wallet types...')
+  logger.info('Seeding wallet types...')
   const createdWalletTypes: IWalletType[] = []
 
   for (const walletTypeData of walletTypes) {
@@ -119,7 +119,7 @@ async function seedWalletTypes(
     })
 
     if (existingWalletType) {
-      console.log(`Wallet type "${walletTypeData.label}" already exists.`)
+      logger.info(`Wallet type "${walletTypeData.label}" already exists.`)
       createdWalletTypes.push(existingWalletType)
       continue
     }
@@ -129,7 +129,7 @@ async function seedWalletTypes(
       createdBy: adminId,
     })
 
-    console.log(`Created wallet type: ${walletType.label}`)
+    logger.info(`Created wallet type: ${walletType.label}`)
     createdWalletTypes.push(walletType)
   }
 
@@ -141,7 +141,7 @@ async function seedWallets(
   users: IUser[],
   walletTypes: IWalletType[],
 ): Promise<IWallet[]> {
-  console.log('Seeding wallets...')
+  logger.info('Seeding wallets...')
   const wallets: IWallet[] = []
 
   for (const user of users) {
@@ -160,7 +160,7 @@ async function seedWallets(
       })
 
       if (existingWallet) {
-        console.log(
+        logger.info(
           `Wallet "${title}" already exists for ${user.firstName} ${user.lastName}.`,
         )
         wallets.push(existingWallet)
@@ -177,7 +177,7 @@ async function seedWallets(
         createdAt: getRandomDate(),
       })
 
-      console.log(
+      logger.info(
         `Created wallet "${title}" for ${user.firstName} ${user.lastName}`,
       )
       wallets.push(wallet)
@@ -192,13 +192,13 @@ async function seedWalletBalances(
   wallets: IWallet[],
   adminId: mongoose.Types.ObjectId,
 ): Promise<void> {
-  console.log('Seeding wallet balances...')
+  logger.info('Seeding wallet balances...')
 
   for (const wallet of wallets) {
     // Get the wallet type
     const walletTypeDoc = await WalletType.findById(wallet.walletType)
     if (!walletTypeDoc) {
-      console.log(
+      logger.info(
         `Wallet type not found for wallet ${wallet.title}, skipping...`,
       )
       continue
@@ -216,7 +216,7 @@ async function seedWalletBalances(
     const currency = getRandomItem(CURRENCIES)
 
     if (existingBalance) {
-      console.log(
+      logger.info(
         `Balance already exists for wallet ${wallet.title}, updating...`,
       )
 
@@ -227,7 +227,7 @@ async function seedWalletBalances(
         updatedAt: new Date(),
       })
 
-      console.log(
+      logger.info(
         `Updated balance for "${wallet.title}" to ${amount} ${currency}`,
       )
       continue
@@ -244,7 +244,7 @@ async function seedWalletBalances(
     }
 
     await WalletBalance.create(balanceData)
-    console.log(
+    logger.info(
       `Created balance of ${amount} ${currency} for wallet "${wallet.title}"`,
     )
   }
@@ -269,9 +269,9 @@ async function feed() {
         throw new Error('Failed to create admin user')
       }
 
-      console.log('Admin user created')
+      logger.info('Admin user created')
     } else {
-      console.log('Admin user already exists')
+      logger.info('Admin user already exists')
     }
 
     // Create test users
@@ -281,13 +281,13 @@ async function feed() {
       const existingUser = await User.findOne({ email: userData.email })
 
       if (existingUser) {
-        console.log(`User ${userData.email} already exists.`)
+        logger.info(`User ${userData.email} already exists.`)
         users.push(existingUser)
         continue
       }
 
       const user = await User.create(userData)
-      console.log(`Created user: ${user.firstName} ${user.lastName}`)
+      logger.info(`Created user: ${user.firstName} ${user.lastName}`)
       users.push(user)
     }
 
@@ -300,9 +300,9 @@ async function feed() {
     // Seed wallet balances
     await seedWalletBalances(wallets, adminUser.id)
 
-    console.log('Wallet seeding completed successfully.')
+    logger.info('Wallet seeding completed successfully.')
   } catch (error) {
-    console.error('Error in wallet seed:', error)
+    logger.error('Error in wallet seed:', error)
     throw error
   }
 }
@@ -310,9 +310,9 @@ async function feed() {
 export async function walletFeed() {
   try {
     await feed()
-    console.log('Wallet seed process completed.')
+    logger.info('Wallet seed process completed.')
   } catch (error) {
-    console.error('Wallet seed process failed:', error)
+    logger.error('Wallet seed process failed:', error)
     throw error
   }
 }

@@ -1,3 +1,4 @@
+import { logger } from '@/client'
 import { IInstallment } from '@/model/installment'
 import { ISubscription } from '@/model/subscription'
 import { ITransaction } from '@/model/transaction'
@@ -5,50 +6,13 @@ import { ITransactionBrand } from '@/model/transaction-brand'
 import { ITransactionCategory } from '@/model/transaction-category'
 import { IUser } from '@/model/user'
 
+import { testUsers } from './constants'
+
 // ================================
 // USER DATA
 // ================================
 
 // Test users - will be used to create transactions
-
-const testUsers: Partial<IUser>[] = [
-  {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Robert',
-    lastName: 'Johnson',
-    email: 'robert.johnson@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Sarah',
-    lastName: 'Williams',
-    email: 'sarah.williams@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Michael',
-    lastName: 'Brown',
-    email: 'michael.brown@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-]
-
 const transactionBrands: Partial<ITransactionBrand>[] = [
   {
     name: 'Amazon',
@@ -1471,9 +1435,9 @@ export async function transactionFeed() {
   try {
     generateTransactionFeed()
     // Add your transaction database insertion logic here
-    console.log('Transaction seed process completed.')
+    logger.info('Transaction seed process completed.')
   } catch (error) {
-    console.error('Transaction seed process failed:', error)
+    logger.error('Transaction seed process failed:', error)
     throw error
   }
 }
