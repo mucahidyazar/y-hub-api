@@ -1,9 +1,9 @@
-import mongoose, { Schema, model, Document, Model } from 'mongoose'
+import mongoose, { Schema, model, Model } from 'mongoose'
 
-import { baseSchema } from './base.model'
+import { baseSchema, IBaseModel } from './base.model'
 import { IPermission } from './permission'
 
-interface IRole extends Document {
+interface IRole extends IBaseModel {
   name: string // e.g., "admin", "editor", "viewer"
   description: string // Human-readable description
   permissions: mongoose.Types.ObjectId[] | IPermission[]
