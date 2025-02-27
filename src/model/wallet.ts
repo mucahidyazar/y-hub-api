@@ -56,6 +56,11 @@ const walletSchema = new mongoose.Schema<IWallet>({
     maxlength: 50,
     default: '',
   },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   walletType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'WalletType',

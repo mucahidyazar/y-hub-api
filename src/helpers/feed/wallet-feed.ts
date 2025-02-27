@@ -189,7 +189,9 @@ async function seedWalletAccessors(
     ) {
       // Randomly select an accessor
       const randomIndex = Math.floor(Math.random() * potentialAccessors.length)
-      const accessor = potentialAccessors[randomIndex]
+      const accessor = users.find(
+        user => user.email === potentialAccessors[randomIndex].email,
+      )
 
       // Remove selected accessor to avoid duplicates
       potentialAccessors.splice(randomIndex, 1)
@@ -197,12 +199,12 @@ async function seedWalletAccessors(
       // Check if accessor already exists
       const existingAccessor = await WalletAccessor.findOne({
         wallet: wallet.id,
-        accessor: accessor.id,
+        accessor: accessor?.id,
       })
 
       if (existingAccessor) {
         logger.info(
-          `Accessor ${accessor.email} already exists for wallet ${wallet.title}, skipping...`,
+          `Accessor ${accessor?.email} already exists for wallet ${wallet.title}, skipping...`,
         )
         continue
       }
@@ -210,14 +212,14 @@ async function seedWalletAccessors(
       // Create accessor
       await WalletAccessor.create({
         wallet: wallet.id,
-        accessor: accessor.id,
+        accessor: accessor?.id,
         status: 'active',
         createdBy: wallet.owner,
         createdAt: new Date(),
       })
 
       logger.info(
-        `Created accessor ${accessor.email} for wallet ${wallet.title}`,
+        `Created accessor ${accessor?.email} for wallet ${wallet.title}`,
       )
     }
   }
@@ -313,30 +315,33 @@ async function feed() {
     }
 
     // Create test users
-    const users: IUser[] = [adminUser]
+    let users: Partial<IUser>[] = sampleNormalUsers
 
     for (const userData of sampleNormalUsers) {
       const existingUser = await User.findOne({ email: userData.email })
 
       if (existingUser) {
         logger.info(`User ${userData.email} already exists.`)
-        users.push(existingUser)
+        // update the users Partial<IUser> with the existing user
+        users = users.map(user =>
+          user.email === existingUser.email ? existingUser : user,
+        )
         continue
       }
 
       const user = await User.create(userData)
       logger.info(`Created user: ${user.firstName} ${user.lastName}`)
-      users.push(user)
+      users = [...users, user]
     }
 
     // Seed wallet types
     const walletTypeDocs = await seedWalletTypes(adminUser.id)
 
     // Seed wallets
-    const wallets = await seedWallets(users, walletTypeDocs)
+    const wallets = await seedWallets(users as IUser[], walletTypeDocs)
 
     // Seed wallet accessors
-    await seedWalletAccessors(wallets, users)
+    await seedWalletAccessors(wallets, users as IUser[])
 
     // Seed wallet balances
     await seedWalletBalances(wallets, adminUser.id)
