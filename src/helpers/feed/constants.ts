@@ -1,6 +1,20 @@
-import { IUser } from "@/model/user"
+import { IUser } from '@/model/user'
 
-const dataUsers: Partial<IUser>[] = [
+// ================================
+// ADMIN USER
+// ================================
+const adminUserData: Partial<IUser> = {
+  firstName: 'Admin',
+  lastName: 'User',
+  email: 'admin@example.com',
+  password: '123456789-Aa',
+  status: 'active',
+}
+
+// ================================
+// ROLE USERS
+// ================================
+const sampleRoleUsers: Partial<IUser>[] = [
   // Admin users
   {
     firstName: 'Admin',
@@ -112,7 +126,10 @@ const dataUsers: Partial<IUser>[] = [
   },
 ]
 
-const testUsers: Partial<IUser>[] = [
+// ================================
+// NORMAL USERS
+// ================================
+const sampleNormalUsers: Partial<IUser>[] = [
   {
     firstName: 'John',
     lastName: 'Doe',
@@ -150,4 +167,21 @@ const testUsers: Partial<IUser>[] = [
   },
 ]
 
-export { dataUsers, testUsers }
+// Define roleUser-role mapping
+const roleUsersMapping: Record<string, string[]> = {
+  'admin@example.com': ['Super Admin'],
+  'system@example.com': ['System'],
+  'administrator@example.com': ['Administrator'],
+  'orgadmin@example.com': ['Organization Admin'],
+  'usermanager@example.com': ['User Manager'],
+  'contentmanager@example.com': ['Content Manager'],
+  'transactionmanager@example.com': ['Transaction Manager'],
+  'user@example.com': ['Standard User'],
+  'guest@example.com': ['Guest'],
+  'viewer@example.com': ['Viewer'],
+  'apiclient@example.com': ['API Client'],
+  'auditor@example.com': ['Auditor'],
+  'multi@example.com': ['User Manager', 'Content Manager'], // User with multiple roles
+}
+
+export { adminUserData, roleUsersMapping, sampleNormalUsers, sampleRoleUsers }

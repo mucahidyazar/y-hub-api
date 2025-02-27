@@ -6,13 +6,8 @@ import { ITransactionBrand } from '@/model/transaction-brand'
 import { ITransactionCategory } from '@/model/transaction-category'
 import { IUser } from '@/model/user'
 
-import { testUsers } from './constants'
+import { sampleNormalUsers } from './constants'
 
-// ================================
-// USER DATA
-// ================================
-
-// Test users - will be used to create transactions
 const transactionBrands: Partial<ITransactionBrand>[] = [
   {
     name: 'Amazon',
@@ -1370,7 +1365,7 @@ function assignIds<T>(entities: Partial<T>[]): Partial<T>[] {
 // Generate feed data
 export function generateTransactionFeed() {
   // Assign IDs to all entities
-  const users = assignIds(testUsers) as IUser[]
+  const users = assignIds(sampleNormalUsers) as IUser[]
   const brands = assignIds(transactionBrands) as ITransactionBrand[]
   const categories = assignIds(transactionCategories) as ITransactionCategory[]
   const allInstallments = assignIds(installments) as IInstallment[]

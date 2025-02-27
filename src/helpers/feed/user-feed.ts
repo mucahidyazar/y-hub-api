@@ -2,43 +2,17 @@ import { logger } from '@/client'
 import { Role } from '@/model/role'
 import { IUser, User } from '@/model/user'
 
-import { dataUsers } from './constants'
-
-// Define user creator (same as the one used in other seeds)
-const userCreatorData: Partial<IUser> = {
-  firstName: 'Super',
-  lastName: 'Admin',
-  email: 'superadmin@admin.com',
-  password: '123456789-Aa',
-  status: 'active',
-}
-
-// Define user-role mapping
-const userRoles: Record<string, string[]> = {
-  'admin@example.com': ['Super Admin'],
-  'system@example.com': ['System'],
-  'administrator@example.com': ['Administrator'],
-  'orgadmin@example.com': ['Organization Admin'],
-  'usermanager@example.com': ['User Manager'],
-  'contentmanager@example.com': ['Content Manager'],
-  'transactionmanager@example.com': ['Transaction Manager'],
-  'user@example.com': ['Standard User'],
-  'guest@example.com': ['Guest'],
-  'viewer@example.com': ['Viewer'],
-  'apiclient@example.com': ['API Client'],
-  'auditor@example.com': ['Auditor'],
-  'multi@example.com': ['User Manager', 'Content Manager'], // User with multiple roles
-}
+import { adminUserData, sampleRoleUsers, roleUsersMapping } from './constants'
 
 async function feed() {
   try {
     // First ensure we have a user creator
     let userCreator: IUser | null = await User.findOne({
-      email: userCreatorData.email,
+      email: adminUserData.email,
     })
 
     if (!userCreator) {
-      userCreator = await User.create(userCreatorData)
+      userCreator = await User.create(adminUserData)
 
       if (!userCreator) {
         throw new Error('User creator could not be created')
@@ -62,7 +36,7 @@ async function feed() {
     })
 
     // Process each user and assign roles
-    for (const user of dataUsers) {
+    for (const user of sampleRoleUsers) {
       // Skip if user exists
       const existingUser = await User.findOne({ email: user.email })
       if (existingUser) {
@@ -71,7 +45,7 @@ async function feed() {
         )
 
         // Get role IDs for this user
-        const rolesToAssign = userRoles[user.email as string] || []
+        const rolesToAssign = roleUsersMapping[user.email as string] || []
         const roleIds = rolesToAssign
           .map(roleName => roleMap.get(roleName))
           .filter(id => id) // Filter out any undefined IDs
@@ -92,7 +66,7 @@ async function feed() {
       }
 
       // Get role IDs for this user
-      const rolesToAssign = userRoles[user.email as string] || []
+      const rolesToAssign = roleUsersMapping[user.email as string] || []
       const roleIds = rolesToAssign
         .map(roleName => roleMap.get(roleName))
         .filter(id => id) // Filter out any undefined IDs

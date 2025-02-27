@@ -1,10 +1,11 @@
-
 import mongoose from 'mongoose'
 
 import { logger } from '@/client'
 import { IPermission, Permission } from '@/model/permission'
 import { IRole, Role } from '@/model/role'
 import { IUser, User } from '@/model/user'
+
+import { adminUserData, sampleRoleUsers, roleUsersMapping } from './constants'
 
 // ================================
 // PERMISSION DATA
@@ -423,145 +424,6 @@ const roleData: Partial<IRole>[] = [
 ]
 
 // ================================
-// USER DATA
-// ================================
-
-// The admin user data - will be created first and used as creator for other entities
-const adminUserData: Partial<IUser> = {
-  firstName: 'Admin',
-  lastName: 'User',
-  email: 'admin@example.com',
-  password: '123456789-Aa',
-  status: 'active',
-}
-
-// Define user-role mapping
-const userRoles: Record<string, string[]> = {
-  'admin@example.com': ['Super Admin'],
-  'system@example.com': ['System'],
-  'administrator@example.com': ['Administrator'],
-  'orgadmin@example.com': ['Organization Admin'],
-  'usermanager@example.com': ['User Manager'],
-  'contentmanager@example.com': ['Content Manager'],
-  'transactionmanager@example.com': ['Transaction Manager'],
-  'user@example.com': ['Standard User'],
-  'guest@example.com': ['Guest'],
-  'viewer@example.com': ['Viewer'],
-  'apiclient@example.com': ['API Client'],
-  'auditor@example.com': ['Auditor'],
-  'multi@example.com': ['User Manager', 'Content Manager'], // User with multiple roles
-}
-
-// Define sample users
-const userData: Partial<IUser>[] = [
-  // Admin user - defined above and included here for completeness
-  adminUserData,
-
-  // System users
-  {
-    firstName: 'System',
-    lastName: 'Service',
-    email: 'system@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'App',
-    lastName: 'Administrator',
-    email: 'administrator@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Manager users
-  {
-    firstName: 'Org',
-    lastName: 'Admin',
-    email: 'orgadmin@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'User',
-    lastName: 'Manager',
-    email: 'usermanager@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'Content',
-    lastName: 'Manager',
-    email: 'contentmanager@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'Transaction',
-    lastName: 'Manager',
-    email: 'transactionmanager@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Regular users
-  {
-    firstName: 'Standard',
-    lastName: 'User',
-    email: 'user@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'Guest',
-    lastName: 'User',
-    email: 'guest@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'View',
-    lastName: 'Only',
-    email: 'viewer@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Special users
-  {
-    firstName: 'API',
-    lastName: 'Client',
-    email: 'apiclient@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-  {
-    firstName: 'System',
-    lastName: 'Auditor',
-    email: 'auditor@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Multi-role user
-  {
-    firstName: 'Multi',
-    lastName: 'Role',
-    email: 'multi@example.com',
-    password: '123456789-Aa',
-    status: 'active',
-  },
-
-  // Inactive user
-  {
-    firstName: 'Inactive',
-    lastName: 'User',
-    email: 'inactive@example.com',
-    password: '123456789-Aa',
-    status: 'inactive',
-  },
-]
-
-// ================================
 // HELPER FUNCTIONS
 // ================================
 
@@ -662,14 +524,14 @@ async function seedUsers(
   let isAdminNew = false
 
   // Process each user and assign roles
-  for (const user of userData) {
+  for (const user of sampleRoleUsers) {
     // Skip if user exists
     const existingUser = await User.findOne({ email: user.email })
     if (existingUser) {
       logger.info(`User "${user.email}" already exists, updating roles...`)
 
       // Get role IDs for this user
-      const rolesToAssign = userRoles[user.email as string] || []
+      const rolesToAssign = roleUsersMapping[user.email as string] || []
       const roleIds = rolesToAssign
         .map(roleName => roleMap.get(roleName))
         .filter(id => id) as mongoose.Types.ObjectId[] // Filter out any undefined IDs
@@ -702,7 +564,7 @@ async function seedUsers(
     }
 
     // Get role IDs for this user
-    const rolesToAssign = userRoles[user.email as string] || []
+    const rolesToAssign = roleUsersMapping[user.email as string] || []
     const roleIds = rolesToAssign
       .map(roleName => roleMap.get(roleName))
       .filter(id => id) as mongoose.Types.ObjectId[] // Filter out any undefined IDs

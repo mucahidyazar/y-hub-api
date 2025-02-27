@@ -6,44 +6,7 @@ import { IWallet, Wallet } from '@/model/wallet'
 import { IWalletBalance, WalletBalance } from '@/model/wallet-balance'
 import { IWalletType, WalletType } from '@/model/wallet-type'
 
-// Define test users
-const testUsers: Partial<IUser>[] = [
-  {
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Robert',
-    lastName: 'Johnson',
-    email: 'robert.johnson@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Sarah',
-    lastName: 'Williams',
-    email: 'sarah.williams@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-  {
-    firstName: 'Michael',
-    lastName: 'Brown',
-    email: 'michael.brown@example.com',
-    password: 'Password123!',
-    status: 'active',
-  },
-]
+import { sampleNormalUsers } from './constants'
 
 // Define wallet types
 const walletTypes: Partial<IWalletType>[] = [
@@ -102,7 +65,7 @@ function getRandomDate(): Date {
 
   return new Date(
     oneYearAgo.getTime() +
-    Math.random() * (now.getTime() - oneYearAgo.getTime()),
+      Math.random() * (now.getTime() - oneYearAgo.getTime()),
   )
 }
 
@@ -277,7 +240,7 @@ async function feed() {
     // Create test users
     const users: IUser[] = [adminUser]
 
-    for (const userData of testUsers) {
+    for (const userData of sampleNormalUsers) {
       const existingUser = await User.findOne({ email: userData.email })
 
       if (existingUser) {
