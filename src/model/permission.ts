@@ -1,8 +1,8 @@
-import { Schema, model, Document } from 'mongoose'
+import { Schema, model } from 'mongoose'
 
-import { baseSchema } from './base.model'
+import { baseSchema, IBaseModel } from './base.model'
 
-interface IPermission extends Document {
+interface IPermission extends IBaseModel {
   name: string // e.g., "create:users", "read:transactions"
   description: string // Human-readable description
   resource: string // The resource this permission applies to (e.g., "users", "transactions")

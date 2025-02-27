@@ -7,7 +7,6 @@ interface IInstallment extends IBaseTransaction {
   installmentStatus: 'continuing' | 'completed' | 'canceled' | 'deleted'
   frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
   repeat: number
-  autoRenew: boolean
   totalAmount: number
   startDate: Date
   endDate: Date

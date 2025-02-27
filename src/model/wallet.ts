@@ -3,6 +3,7 @@ import mongoose from 'mongoose'
 import { VALIDATION_RULES } from '@/constants'
 
 import { IBaseModel, baseSchema } from './base.model'
+import { IUser } from './user'
 import { IWalletAccessor } from './wallet-accessor'
 import { IWalletBalance } from './wallet-balance'
 import { IWalletType } from './wallet-type'
@@ -12,6 +13,7 @@ interface IWallet extends IBaseModel {
   description: string
   design: string
   platform: string
+  owner: mongoose.Types.ObjectId | IUser
 
   walletType: mongoose.Types.ObjectId | IWalletType
 

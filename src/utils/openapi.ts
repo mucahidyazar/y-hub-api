@@ -4,6 +4,8 @@ import { writeFileSync } from 'fs'
 
 import { createDocument } from 'zod-openapi'
 
+import { logger } from '@/client'
+
 import openApiPaths from '../routes/v1'
 
 async function generateOpenApiDoc() {
@@ -128,9 +130,9 @@ async function generateOpenApiDoc() {
       './docs/openapi.json',
       JSON.stringify(openApiDocument, null, 2),
     )
-    console.log('OpenAPI spec generated successfully.')
+    logger.info('OpenAPI spec generated successfully.')
   } catch (error) {
-    console.error('Error generating OpenAPI spec:', error)
+    logger.error('Error generating OpenAPI spec:', error)
     process.exit(1)
   }
 }

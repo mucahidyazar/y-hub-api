@@ -33,7 +33,8 @@
     "prepare": "husky install",
     "test": "jest --coverage",
     "generate:openapi": "ts-node -r module-alias/register ./src/utils/openapi.ts",
-    "feed": "ts-node --files -r tsconfig-paths/register ./src/helpers/feed.ts"
+    "feed": "ts-node --files -r tsconfig-paths/register ./src/helpers/feed.ts",
+    "seed:advanced": "ts-node --files -r tsconfig-paths/register ./src/helpers/feed/feed-main.ts"
   },
   "_moduleAliases": {
     "@": "dist",

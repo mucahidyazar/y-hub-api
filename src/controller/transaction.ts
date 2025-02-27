@@ -157,15 +157,15 @@ async function subscriptionList(req: Request, res: Response) {
         { createdBy: user },
         ...(walletObjectId || walletIds.length > 0
           ? [
-            {
-              wallet: {
-                $in: [
-                  ...walletIds,
-                  ...(walletObjectId ? [walletObjectId] : []),
-                ],
+              {
+                wallet: {
+                  $in: [
+                    ...walletIds,
+                    ...(walletObjectId ? [walletObjectId] : []),
+                  ],
+                },
               },
-            },
-          ]
+            ]
           : []),
       ],
       // Sadece parent subscription'ları al (kendisi bir subscription ama başka bir subscription'a bağlı değil)
@@ -243,12 +243,7 @@ async function transactionChartGet(req: Request, res: Response) {
     createdBy: req.user?.id,
   })
 
-  const populateFields = [
-    'createdBy',
-    'walletBalance',
-    'brand',
-    'category',
-  ]
+  const populateFields = ['createdBy', 'walletBalance', 'brand', 'category']
   populateFields.forEach(field => {
     query.populate(field)
   })
@@ -298,12 +293,7 @@ async function transactionStatsGet(req: Request, res: Response) {
     ...(req.query.subscription && { subscription: true }),
   })
 
-  const populateFields = [
-    'createdBy',
-    'walletBalance',
-    'brand',
-    'category',
-  ]
+  const populateFields = ['createdBy', 'walletBalance', 'brand', 'category']
   populateFields.forEach(field => {
     query.populate(field)
   })
@@ -454,26 +444,18 @@ async function transactionUpdate(req: Request, res: Response) {
     if (isTransactionIncome) {
       if (isUpdateIncome) {
         walletBalance.amount =
-          walletBalance.amount -
-          (amount ?? 0) +
-          transactionData.amount
+          walletBalance.amount - (amount ?? 0) + transactionData.amount
       } else {
         walletBalance.amount =
-          walletBalance.amount -
-          (amount ?? 0) -
-          transactionData.amount
+          walletBalance.amount - (amount ?? 0) - transactionData.amount
       }
     } else {
       if (isUpdateIncome) {
         walletBalance.amount =
-          walletBalance.amount +
-          (amount ?? 0) +
-          transactionData.amount
+          walletBalance.amount + (amount ?? 0) + transactionData.amount
       } else {
         walletBalance.amount =
-          walletBalance.amount +
-          (amount ?? 0) -
-          transactionData.amount
+          walletBalance.amount + (amount ?? 0) - transactionData.amount
       }
     }
 

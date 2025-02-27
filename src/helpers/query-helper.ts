@@ -54,7 +54,7 @@ async function handlePagination(
 
   query.skip(skip).limit(limit)
 
-  return getPaginationMetadata(limit, page, await query.countDocuments())
+  return getPaginationMetadata(limit, page, await query.clone().countDocuments())
 }
 
 async function queryHelper({

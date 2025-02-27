@@ -35,7 +35,7 @@ const VALIDATION_RULES = {
     lowercase: /[a-z]/,
     number: /[0-9]/,
     // eslint-disable-next-line no-useless-escape
-    special: /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?~]/
+    special: /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?~]/,
   },
 }
 

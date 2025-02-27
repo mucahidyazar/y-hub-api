@@ -59,15 +59,23 @@ const transactionSchema = z.object({
   wallet: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
     message: 'Invalid ObjectId format',
   }),
-  walletBalance: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
-    message: 'Invalid ObjectId format',
-  }),
-  categoryId: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
-    message: 'Invalid ObjectId format',
-  }).optional(),
-  brandId: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
-    message: 'Invalid ObjectId format',
-  }).optional(),
+  walletBalance: z
+    .string()
+    .refine(value => mongoose.Types.ObjectId.isValid(value), {
+      message: 'Invalid ObjectId format',
+    }),
+  categoryId: z
+    .string()
+    .refine(value => mongoose.Types.ObjectId.isValid(value), {
+      message: 'Invalid ObjectId format',
+    })
+    .optional(),
+  brandId: z
+    .string()
+    .refine(value => mongoose.Types.ObjectId.isValid(value), {
+      message: 'Invalid ObjectId format',
+    })
+    .optional(),
 })
 
 const transactionUpdateSchema = transactionSchema.partial()
