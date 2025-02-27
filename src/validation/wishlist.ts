@@ -38,9 +38,13 @@ const wishlistItemSchema = z.object({
     .url(ERROR_MESSAGE.invalid('Image URL'))
     .optional(),
 
-  reservedBy: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
-    message: 'Invalid ObjectId format',
-  }).optional().nullable(),
+  reservedBy: z
+    .string()
+    .refine(value => mongoose.Types.ObjectId.isValid(value), {
+      message: 'Invalid ObjectId format',
+    })
+    .optional()
+    .nullable(),
   reservedAt: z.date().optional().nullable(),
 
   action: z.enum(['initial', 'updated', 'deleted']).optional(),

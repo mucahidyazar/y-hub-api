@@ -60,9 +60,11 @@ export const walletSchema = z.object({
 
   walletBalances: z.array(walletBalanceCreateSchema).default([]),
 
-  walletType: z.string().refine(value => mongoose.Types.ObjectId.isValid(value), {
-    message: 'Invalid ObjectId format',
-  }),
+  walletType: z
+    .string()
+    .refine(value => mongoose.Types.ObjectId.isValid(value), {
+      message: 'Invalid ObjectId format',
+    }),
 
   accessors: z.array(walletAccessorCreateSchema).optional().default([]),
 })
